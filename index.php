@@ -1,7 +1,7 @@
 <?php
-include 'lib/Routing/InvalidRoute.php';
-include 'lib/Routing/Router.php';
-include 'lib/Request.php';
+include 'src/Routing/InvalidRoute.php';
+include 'src/Routing/Router.php';
+include 'src/Request.php';
 
 class Controller
 {
