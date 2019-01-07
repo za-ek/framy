@@ -1,5 +1,5 @@
 <?php
-namespace Zaek\Response;
+namespace Zaek\Framy\Response;
 
 class Json extends Web
 {

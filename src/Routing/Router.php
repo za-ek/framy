@@ -1,5 +1,5 @@
 <?php
-namespace Zaek\Routing;
+namespace Zaek\Framy\Routing;
 
 /**
  * Class Router

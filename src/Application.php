@@ -1,5 +1,5 @@
 <?php
-namespace Zaek;
+namespace Zaek\Framy;
 
 class Application
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Zaek\Request;
+namespace Zaek\Framy\Request;
 
 class Cli extends Request
 {

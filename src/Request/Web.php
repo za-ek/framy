@@ -1,9 +1,8 @@
 <?php
-namespace Zaek\Request;
+namespace Zaek\Framy\Request;
 
 class Web extends Request
 {
-
     public function getMethod()
     {
         if($_SERVER['REQUEST_METHOD'] == 'CLI') {

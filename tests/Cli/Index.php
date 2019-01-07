@@ -1,8 +1,11 @@
 <?php
 /**
- * @var $this \Zaek\Application
+ * @var $this \Zaek\Framy\Application
  */
-$this->getController()->setResponse(new \Zaek\Response\Json());
+
+use Zaek\Framy\Response\Json;
+
+$this->getController()->setResponse(new Json());
 
 echo "Hello index!";
 

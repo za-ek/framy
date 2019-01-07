@@ -9,7 +9,7 @@ class testA {
 }
 
 return [
-    'CLI /cb' => function(\Zaek\Application $app) {
+    'CLI /cb' => function(\Zaek\Framy\Application $app) {
         echo "Callable\n";
     },
     'CLI /file' => '/Cli/Index.php',
