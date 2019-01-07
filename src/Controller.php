@@ -26,12 +26,6 @@ class Controller
     private $request = null;
 
     /**
-     * @var \Filebase\Database
-     */
-    private $db = null;
-
-
-    /**
      * @var Response\Response
      */
     private $response = null;
@@ -142,26 +136,5 @@ class Controller
         }
 
         return (!empty($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : '';
-    }
-
-    /**
-     * @return Database
-     * @throws \Filebase\Filesystem\FilesystemException
-     */
-    public function getDb()
-    {
-        if(empty($this->db)) {
-            $this->db = new Database([
-                'dir' => $this->cfg['dataDir'],
-                'format' => \Filebase\Format\Json::class,
-                'cache' => true,
-                'cache_expires' => 1800,
-                'pretty' => true,
-                'safe_filename' => true,
-                'read_only' => false,
-            ]);
-        }
-
-        return $this->db;
     }
 }
