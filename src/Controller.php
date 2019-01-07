@@ -1,9 +1,10 @@
 <?php
 namespace Zaek\Framy;
 
-use Filebase\Database;
+use Zaek\Framy\Datafile\Database;
 use Zaek\Framy\Request\Cli;
 use Zaek\Framy\Request\Request;
+use Zaek\Framy\Request\InvalidRequest as InvalidRequest;
 use Zaek\Framy\Request\Web;
 use Zaek\Framy\Response as Response;
 use Zaek\Framy\Routing\Router;
@@ -30,6 +31,10 @@ class Controller
      */
     private $response = null;
 
+    /**
+     * @var Database
+     */
+    private $db = null;
     /**
      * Controller constructor.
      * @param array $cfg
@@ -108,6 +113,7 @@ class Controller
 
     /**
      * @throws Routing\InvalidRoute
+     * @throws InvalidRequest
      */
     public function handle() : void
     {
@@ -136,5 +142,14 @@ class Controller
         }
 
         return (!empty($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : '';
+    }
+    
+    public function db()
+    {
+        if(is_null($this->db)) {
+            $this->db = new Database($this->cfg);
+        }
+
+        return $this->db;
     }
 }

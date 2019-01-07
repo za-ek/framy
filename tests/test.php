@@ -12,4 +12,6 @@ try {
 
 } catch (\Zaek\Framy\Routing\InvalidRoute $e) {
     echo $e->getMessage() . '<br/>';
+} catch (\Zaek\Framy\Request\InvalidRequest $e) {
+    echo $e->getMessage() . '<br/>';
 }
