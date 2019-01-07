@@ -1,14 +1,10 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
     $controller = new \Zaek\Controller([
         'homeDir' => __DIR__,
-        'routes' => [
-            'GET /' => function () {
-                echo "Hello index!";
-            }
-        ]
+        'routes' => include '.router.php'
     ]);
     $controller->handle();
     $controller->getResponse()->flush();

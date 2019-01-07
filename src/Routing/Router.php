@@ -1,8 +1,6 @@
 <?php
 namespace Zaek\Routing;
 
-use Zaek\Request;
-
 /**
  * Class Router
  * @package Zaek\Routing
@@ -22,9 +20,16 @@ class Router
         'CONNECT',
         'OPTIONS',
         'TRACE',
+        'CLI',
     ];
 
+    /**
+     * @var array
+     */
     private $static_routes = [];
+    /**
+     * @var array
+     */
     private $dynamic_routes = [];
 
     /**
@@ -85,7 +90,7 @@ class Router
      * @return array
      * @throws InvalidRoute
      */
-    private function prepareDynamicRoute($route, $target)
+    private function prepareDynamicRoute($route, $target) : array
     {
         $length = strlen($route);
         $inside = false;
@@ -181,5 +186,7 @@ class Router
                 }
             }
         }
+
+        return null;
     }
 }
