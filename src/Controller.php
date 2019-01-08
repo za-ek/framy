@@ -36,6 +36,10 @@ class Controller
      */
     private $db = null;
     /**
+     * @var User
+     */
+    private $user = null;
+    /**
      * Controller constructor.
      * @param array $cfg
      */
@@ -47,6 +51,13 @@ class Controller
             } else {
                 $this->cfg[$k] = $v;
             }
+        }
+
+        if(!isset($cfg['useDefault']) || !$cfg['useDefault']) {
+            if(empty($this->cfg['routes'])) $this->cfg['routes'] = [];
+            $dir = '@' . __DIR__.'/../bin';
+
+            $this->cfg['routes']['POST /framy/signUp'] = [$dir.'/SignUp.php'];
         }
     }
 
@@ -143,7 +154,10 @@ class Controller
 
         return (!empty($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : '';
     }
-    
+
+    /**
+     * @return Database
+     */
     public function db()
     {
         if(is_null($this->db)) {
@@ -151,5 +165,26 @@ class Controller
         }
 
         return $this->db;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        if(is_null($this->user)) {
+            $this->user = new User($this);
+        }
+
+        return $this->user;
+    }
+
+    public function getConf($key)
+    {
+        if(!array_key_exists($key, $this->cfg)) {
+            throw new InvalidConfiguration($key);
+        }
+
+        return $this->cfg[$key];
     }
 }

@@ -12,4 +12,19 @@ class Cli extends Request
     {
         return (!empty($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '');
     }
+
+    public function post(...$keys)
+    {
+        return [];
+    }
+
+    public function get(...$keys)
+    {
+        return [];
+    }
+
+    public function files()
+    {
+        return [];
+    }
 }

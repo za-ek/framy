@@ -9,4 +9,7 @@ abstract class Request
      */
     abstract public function getMethod();
     abstract public function getUri();
+    abstract public function post(...$keys);
+    abstract public function get(...$keys);
+    abstract public function files();
 }

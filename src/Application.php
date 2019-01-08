@@ -33,21 +33,22 @@ class Application
         ob_start(null, null, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
 
         if(is_string($action)) {
-            // file
-            $file = $this->controller->getRootDir() . $action;
+            if(substr($action, 0, 1) === '@') {
+                $file = substr($action, 1);
+            } else {
+                $file = $this->controller->getRootDir() . $action;
+            }
             if(file_exists($file)) {
                 $result = include $file;
             } else {
                 $result = $this->controller->getResponse()->showError(500);
             }
         } else if (is_array($action)) {
-            // func / class+method
             if(count($action) == 1) $action = $action[0];
             $result = call_user_func($action, $this);
         } else if (is_object($action) && $action instanceof Action) {
             $result = $action->execute($this);
         } else if (is_callable($action)) {
-            // call
             $result = $action($this);
         }
 
