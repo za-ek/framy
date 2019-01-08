@@ -23,6 +23,61 @@ try {
 }
 ```
 
+## Routing
+You can overwrite default router calling the `setRouter` method
+```php
+\Zaek\Framy\Controller::setRouter(\Zaek\Framy\Router)
+```
+Router syntax:
+```php
+[
+  '(METHOD )URI' => TARGET
+] 
+```
+##### Method
+Method must be one of the following: 
+`GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|CLI`  
+Skip the method definition mean that URI is accessible by any of knowing methods
+
+##### URI
+URI may be static...  
+```
+/api/testCall
+```  
+...or dynamic
+```
+/api/<dynamicGroup>
+``` 
+where dynamic group defines with the expression:
+```
+variable:regex
+variable - any latin symbol
+regex - regular expression rule
+
+Example:
+/api/user<userId:[\d]+> 
+(converts by framework to #/api/user(?<userId>[\d]+)#)
+```
+
+##### Target
+Target can be a callback function, 
+an array contains function name, 
+an array with class name and method name,
+or an object implements \Zaek\Framy\Action interface
+ 
+##### Examples
+```
+[
+  '/api/staticCall' => '/Web/Index.php',
+  'CLI /api/runCron' => '/Cli/Job.php',
+  '/api/users/<userId:[\d]+>' => '/Web/User.php', // access to $userId from Application::getAction()['vars']
+  '/api/functionCall' => function(Application $app) {},
+  '/api/methodCall' => ['MyController', 'MethodAction'],
+  '/api/anotherFunction' => ['FunctionName'],
+  '/api/absolutePathFileCall' => '@/var/www/index.html',
+]
+```
+
 ## Config
 |Name|Type|Default Value|Description|
 |---|---|---|---|

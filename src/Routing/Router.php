@@ -70,18 +70,20 @@ class Router
         }
     }
 
-    private function parseRoute($route, $regexp = '(?<path>[^s]*)')
+    private function parseRoute($route)
     {
-        $regexp = '/' .
-            '(?<method>' . implode('|', self::$available_methods) . '){1}' .
-            '\s' .
-            $regexp .
-            '$' .
-            '/';
+        if(!strpos($route, ' ')) {
+            $method = self::$available_methods;
+        } else {
+            $method = explode('|', substr($route, 0, strpos($route, ' ')));
+        }
 
-        preg_match_all($regexp, $route, $matches);
+        $path = substr($route, strpos($route, ' '));
 
-        return $matches;
+        return [
+            'method' => $method,
+            'path' => $path
+        ];
     }
 
     /**
@@ -167,7 +169,7 @@ class Router
     {
         foreach($this->static_routes as $route) {
             if($route['method'][0] === $method && $route['path'][0] === $uri) {
-                return $route['target'];
+                return $route;
             }
         }
 

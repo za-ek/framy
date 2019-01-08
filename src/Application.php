@@ -6,6 +6,7 @@ class Application
     private $exec_file = '';
     private $controller;
     private $result;
+    private $action;
 
     public function __construct(Controller $controller)
     {
@@ -28,24 +29,27 @@ class Application
      */
     public function execute($action)
     {
+        $this->action = $action;
         $result = null;
 
         ob_start(null, null, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
 
-        if(is_string($action)) {
-            if(substr($action, 0, 1) === '@') {
-                $file = substr($action, 1);
+        if (is_array($action)) {
+            if(array_key_exists('target', $action)) {
+                if(substr($action['target'], 0, 1) === '@') {
+                    $file = substr($action['target'], 1);
+                } else {
+                    $file = $this->controller->getRootDir() . $action['target'];
+                }
+                if(file_exists($file)) {
+                    $result = include $file;
+                } else {
+                    $result = $this->controller->getResponse()->showError(500);
+                }
             } else {
-                $file = $this->controller->getRootDir() . $action;
+                if (count($action) == 1) $action = $action[0];
+                $result = call_user_func($action, $this);
             }
-            if(file_exists($file)) {
-                $result = include $file;
-            } else {
-                $result = $this->controller->getResponse()->showError(500);
-            }
-        } else if (is_array($action)) {
-            if(count($action) == 1) $action = $action[0];
-            $result = call_user_func($action, $this);
         } else if (is_object($action) && $action instanceof Action) {
             $result = $action->execute($this);
         } else if (is_callable($action)) {
@@ -61,5 +65,10 @@ class Application
         ];
 
         return $this->result;
+    }
+
+    public function getAction()
+    {
+        return $this->action;
     }
 }
