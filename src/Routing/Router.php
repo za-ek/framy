@@ -54,7 +54,7 @@ class Router
         $route = trim($route);
 
         if(strstr($route, '<')) {
-            $this->dynamic_routes[] = $this->prepareDynamicRoute($route, $target);
+            $this->addDynamicRoute($route, $target);
         } else {
             $matches = $this->parseRoute($route);
 
@@ -62,12 +62,49 @@ class Router
                 throw new InvalidRoute($route);
             }
 
-            $this->static_routes[] = [
-                'method' => $matches['method'],
-                'path' => $matches['path'],
-                'target' => $target
-            ];
+            if(in_array('REST', $matches['method'])) {
+                $this->addRestRoutes($matches, $target);
+            } else {
+                $this->addStaticRoute($matches['method'], $matches['path'], $target);
+            }
         }
+    }
+
+    private function addRestRoutes($matches, $target)
+    {
+        $path = rtrim($matches['path'], '/');
+        $target = rtrim($target, '/');
+
+        foreach([
+            ['GET', '', 'list'],
+            ['POST', '', 'add'],
+        ] as $item) {
+            $this->addStaticRoute(
+                [$item[0]],
+                $path . $item[1],
+                $target . '/' . $item[2] . '.php'
+            );
+        }
+
+        foreach([
+            ['GET', '/<id>', 'item'],
+            ['PATCH', '/<id>', 'update'],
+            ['DELETE', '/<id>', 'delete'],
+        ] as $item) {
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $this->addDynamicRoute(
+                $item[0] . ' ' . $path . $item[1],
+                $target . '/' . $item[2] . '.php');
+        }
+    }
+
+    private function addStaticRoute($methods, $path, $target)
+    {
+        $this->static_routes[] = [
+            'method' => $methods,
+            'path' => $path,
+            'target' => $target
+        ];
     }
 
     private function parseRoute($route)
@@ -92,7 +129,7 @@ class Router
      * @return array
      * @throws InvalidRoute
      */
-    private function prepareDynamicRoute($route, $target) : array
+    private function addDynamicRoute($route, $target) : array
     {
         $length = strlen($route);
         $inside = false;
@@ -152,7 +189,7 @@ class Router
 
         $method = strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route;
 
-        return [
+        $this->dynamic_routes[] = [
             'method' => strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route,
             'path' => '#' . substr($route, strlen($method) + 1) . '#',
             'target' => $target,
