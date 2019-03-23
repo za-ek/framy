@@ -78,7 +78,7 @@ class Router
             $method = explode('|', substr($route, 0, strpos($route, ' ')));
         }
 
-        $path = substr($route, strpos($route, ' '));
+        $path = substr($route, strpos($route, ' ') + 1);
 
         return [
             'method' => $method,
