@@ -168,7 +168,7 @@ class Router
     public function getRequestAction($method, $uri)
     {
         foreach($this->static_routes as $route) {
-            if($route['method'][0] === $method && $route['path'][0] === $uri) {
+            if($route['method'][0] === $method && $route['path'] === $uri) {
                 return $route;
             }
         }
