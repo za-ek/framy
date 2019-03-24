@@ -3,6 +3,7 @@ namespace Zaek\Framy\Routing;
 
 use Zaek\Framy\Action;
 use Zaek\Framy\Action\File;
+use Zaek\Framy\Response\Json;
 
 /**
  * Class Router
@@ -79,35 +80,43 @@ class Router
         $target = rtrim($target, '/');
 
         foreach([
-            ['GET', '', 'list'],
-            ['POST', '', 'add'],
+            ['GET', '', 'List'],
+            ['POST', '', 'Add'],
         ] as $item) {
             $this->addStaticRoute(
                 [$item[0]],
                 $path . $item[1],
-                $target . '/' . $item[2] . '.php'
+                $target . '/' . $item[2] . '.php',
+                [
+                    'response' => Json::class
+                ]
             );
         }
 
         foreach([
-            ['GET', '/<id>', 'item'],
-            ['PATCH', '/<id>', 'update'],
-            ['DELETE', '/<id>', 'delete'],
+            ['GET', '/<id:[\d]+>', 'Item'],
+            ['PATCH', '/<id:[\d]+>', 'Update'],
+            ['DELETE', '/<id:[\d]+>', 'Delete'],
         ] as $item) {
             /** @noinspection PhpUnhandledExceptionInspection */
             $this->addDynamicRoute(
                 $item[0] . ' ' . $path . $item[1],
-                $target . '/' . $item[2] . '.php');
+                $target . '/' . $item[2] . '.php',
+                [
+                    'response' => Json::class
+                ]
+            );
         }
     }
 
-    private function addStaticRoute($methods, $path, $target)
+    private function addStaticRoute($methods, $path, $target, $meta = [])
     {
         foreach($methods as $method) {
             $this->static_routes[] = [
                 'method' => $method,
-                'path' => $path,
-                'target' => $target
+                'path'   => $path,
+                'target' => $target,
+                'meta'   => $meta
             ];
         }
     }
@@ -134,7 +143,7 @@ class Router
      * @return array
      * @throws InvalidRoute
      */
-    private function addDynamicRoute($route, $target) : void
+    private function addDynamicRoute($route, $target, $meta = []) : void
     {
         $length = strlen($route);
         $inside = false;
@@ -196,9 +205,10 @@ class Router
 
         $this->dynamic_routes[] = [
             'method' => strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route,
-            'path' => '#' . substr($route, strlen($method) + 1) . '#',
+            'path'   => '#' . substr($route, strlen($method) + 1) . '#',
             'target' => $target,
-            'vars' => $vars
+            'vars'   => $vars,
+            'meta'   => $meta
         ];
     }
 
@@ -240,22 +250,29 @@ class Router
         if (is_array($route)) {
             if(array_key_exists('target', $route)) {
                 if(is_callable($route['target'])) {
-                    return new Action\CbFunction($route['target']);
+                    $action = new Action\CbFunction($route['target']);
+                } else {
+                    $action = new File($route['target']);
                 }
-
-                return new File($route['target']);
+            } else {
+                if (count($route) == 1) {
+                    $route = $route[0];
+                }
+                $action = new Action\CbFunction($route);
             }
-
-            if (count($route) == 1) {
-                $route = $route[0];
-            }
-
-            return new Action\CbFunction($route);
         } else if (is_object($route) && $route instanceof Action) {
-            return $route;
+            $action = $route;
         } else if (is_callable($route)) {
-            return new Action\CbFunction($route);
+            $action = new Action\CbFunction($route);
         }
+
+        if(!empty($route['meta'])) {
+            if(!empty($route['meta']['response'])) {
+                $action->setResponse(new $route['meta']['response']);
+            }
+        }
+
+        return $action;
     }
 
     public function __printRoutes()
