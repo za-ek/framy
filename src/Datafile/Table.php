@@ -86,7 +86,7 @@ class Table
      */
     public function insert($aData)
     {
-        $aData['_id'] = $this->meta['id']++;
+        $aData['_id'] = $this->meta['id']+1;
         $aData['_created'] = microtime(true);
         $aData['_updated'] = $aData['_created'];
 
