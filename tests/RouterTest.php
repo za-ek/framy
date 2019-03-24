@@ -87,9 +87,6 @@ final class RouterTest extends TestCase
     }
     public function testMultipleRoute()
     {
-        $app = new \Zaek\Framy\Application(
-            new \Zaek\Framy\Controller()
-        );
         $router = new \Zaek\Framy\Routing\Router();
 
         $router->addRoute('GET|POST /cb', '/index');
@@ -108,5 +105,26 @@ final class RouterTest extends TestCase
         // URL is defined. Method is not defined
         $this->expectException(\Zaek\Framy\Routing\NoRoute::class);
         $router->getRequestAction('PUT', '/cb');
+    }
+    public function testRestMethods()
+    {
+        $router = new \Zaek\Framy\Routing\Router();
+
+        $router->addRoute('REST /users', '/users');
+
+        $action = $router->getRequestAction('GET', '/users');
+        $this->assertEquals('/users/List.php', $action->getPath());
+
+        $action = $router->getRequestAction('POST', '/users');
+        $this->assertEquals('/users/Add.php', $action->getPath());
+
+        $action = $router->getRequestAction('GET', '/users/32');
+        $this->assertEquals('/users/Item.php', $action->getPath());
+
+        $action = $router->getRequestAction('PATCH', '/users/32');
+        $this->assertEquals('/users/Update.php', $action->getPath());
+
+        $action = $router->getRequestAction('DELETE', '/users/32');
+        $this->assertEquals('/users/Delete.php', $action->getPath());
     }
 }
