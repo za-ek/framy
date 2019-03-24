@@ -41,6 +41,10 @@ class Controller
      */
     private $user = null;
     /**
+     * @var \Zaek\Framy\Action\Action|null
+     */
+    private $_action = null;
+    /**
      * Controller constructor.
      * @param array $cfg
      */
@@ -96,6 +100,14 @@ class Controller
     public function getResponse() : Response\Response
     {
         if(is_null($this->response)) {
+            if(!empty($this->_action)) {
+                if($this->_action->getResponse()) {
+                    $this->response = $this->_action->getResponse();
+                }
+            }
+        }
+
+        if(is_null($this->response)) {
             $this->response = (php_sapi_name() == 'cli') ? new Response\Cli() : new Response\Web();
         }
 
@@ -134,6 +146,9 @@ class Controller
                 $this->getRequest()->getMethod(),
                 $this->getRequest()->getUri()
             );
+            $action->setMethod($this->getRequest()->getMethod());
+            $action->setUri($this->getRequest()->getUri());
+            $this->_action = $action;
 
             $app = new Application($this);
             $execResult = $app->execute($action);
