@@ -1,6 +1,8 @@
 <?php
 namespace Zaek\Framy;
 
+use Zaek\Framy\Action\NotFound;
+
 class Application
 {
     private $exec_file = '';
@@ -18,42 +20,31 @@ class Application
         return $this->controller;
     }
 
+    /**
+     * @param $file
+     * @return mixed
+     */
     public function runFile($file)
     {
-        include $file;
+        return include $file;
     }
 
     /**
-     * @param $action
+     * @param \Zaek\Framy\Action\Action $action
      * @return false|mixed|string
      */
-    public function execute($action)
+    public function execute(\Zaek\Framy\Action\Action $action)
     {
         $this->action = $action;
-        $result = null;
 
         ob_start(null, null, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
 
-        if (is_array($action)) {
-            if(array_key_exists('target', $action)) {
-                if(substr($action['target'], 0, 1) === '@') {
-                    $file = substr($action['target'], 1);
-                } else {
-                    $file = $this->controller->getRootDir() . $action['target'];
-                }
-                if(file_exists($file)) {
-                    $result = include $file;
-                } else {
-                    $result = $this->controller->getResponse()->showError(500);
-                }
-            } else {
-                if (count($action) == 1) $action = $action[0];
-                $result = call_user_func($action, $this);
-            }
-        } else if (is_object($action) && $action instanceof Action) {
+        try {
             $result = $action->execute($this);
-        } else if (is_callable($action)) {
-            $result = $action($this);
+        } catch (NotFound $e) {
+            $this->getController()->getResponse()->showError(404);
+        } finally {
+            $this->getController()->getResponse()->showError(500);
         }
 
         $buffer = ob_get_contents();

@@ -1,6 +1,9 @@
 <?php
 namespace Zaek\Framy\Routing;
 
+use Zaek\Framy\Action;
+use Zaek\Framy\Action\File;
+
 /**
  * Class Router
  * @package Zaek\Routing
@@ -129,7 +132,7 @@ class Router
      * @return array
      * @throws InvalidRoute
      */
-    private function addDynamicRoute($route, $target) : array
+    private function addDynamicRoute($route, $target) : void
     {
         $length = strlen($route);
         $inside = false;
@@ -200,13 +203,14 @@ class Router
     /**
      * @param $method
      * @param $uri
-     * @return mixed
+     * @return Action
+     * @throws NoRoute
      */
-    public function getRequestAction($method, $uri)
+    public function getRequestAction($method, $uri) : Action\Action
     {
         foreach($this->static_routes as $route) {
             if($route['method'][0] === $method && $route['path'] === $uri) {
-                return $route;
+                return $this->convertRouteToAction($route);
             }
         }
 
@@ -221,11 +225,34 @@ class Router
                         );
                     }
 
-                    return $route;
+                    return $this->convertRouteToAction($route);
                 }
             }
         }
 
-        return null;
+        throw new NoRoute;
+    }
+
+    private function convertRouteToAction($route)
+    {
+        if (is_array($route)) {
+            if(array_key_exists('target', $route)) {
+                if(is_callable($route['target'])) {
+                    return new Action\CbFunction($route['target']);
+                } else {
+                    return new File($route['target']);
+                }
+            }
+
+            if (count($route) == 1) {
+                $route = $route[0];
+            }
+
+            return new Action\CbFunction($route);
+        } else if (is_object($route) && $route instanceof Action) {
+            return $route;
+        } else if (is_callable($route)) {
+            return new Action\CbFunction($route);
+        }
     }
 }
