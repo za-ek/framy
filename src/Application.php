@@ -1,6 +1,7 @@
 <?php
 namespace Zaek\Framy;
 
+use Zaek\Framy\Action\Action;
 use Zaek\Framy\Action\NotFound;
 
 class Application
@@ -30,10 +31,10 @@ class Application
     }
 
     /**
-     * @param \Zaek\Framy\Action\Action $action
+     * @param Action $action
      * @return false|mixed|string
      */
-    public function execute(\Zaek\Framy\Action\Action $action)
+    public function execute(Action $action)
     {
         $this->action = $action;
 
@@ -56,7 +57,7 @@ class Application
         return $this->result;
     }
 
-    public function getAction()
+    public function getAction() : Action
     {
         return $this->action;
     }
