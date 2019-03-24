@@ -3,7 +3,7 @@ namespace Zaek\Framy\Action;
 
 use Zaek\Framy\Application;
 
-class CbFunction implements Action
+class CbFunction extends Base
 {
     private $_cb;
 

@@ -3,7 +3,7 @@ namespace Zaek\Framy\Action;
 
 use Zaek\Framy\Application;
 
-class File implements Action
+class File extends Base
 {
     /**
      * @var string
