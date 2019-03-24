@@ -43,8 +43,6 @@ class Application
             $result = $action->execute($this);
         } catch (NotFound $e) {
             $this->getController()->getResponse()->showError(404);
-        } finally {
-            $this->getController()->getResponse()->showError(500);
         }
 
         $buffer = ob_get_contents();

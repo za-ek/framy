@@ -85,4 +85,28 @@ final class RouterTest extends TestCase
         $this->assertEquals('asd', $action->execute($app));
         unlink($file);
     }
+    public function testMultipleRoute()
+    {
+        $app = new \Zaek\Framy\Application(
+            new \Zaek\Framy\Controller()
+        );
+        $router = new \Zaek\Framy\Routing\Router();
+
+        $router->addRoute('GET|POST /cb', '/index');
+        $router->addRoute('OPTIONS /cb', '/options');
+
+        // URL is defined. Methods are multiples in one
+        $action = $router->getRequestAction('GET', '/cb');
+        $this->assertEquals('/index', $action->getPath());
+        $action = $router->getRequestAction('POST', '/cb');
+        $this->assertEquals('/index', $action->getPath());
+
+        // URL is defined. Method is defined
+        $action = $router->getRequestAction('OPTIONS', '/cb');
+        $this->assertEquals('/options', $action->getPath());
+
+        // URL is defined. Method is not defined
+        $this->expectException(\Zaek\Framy\Routing\NoRoute::class);
+        $router->getRequestAction('PUT', '/cb');
+    }
 }

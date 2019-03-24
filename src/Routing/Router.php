@@ -29,7 +29,7 @@ class Router
     /**
      * @var array
      */
-    private $static_routes = [];
+    public $static_routes = [];
     /**
      * @var array
      */
@@ -103,11 +103,13 @@ class Router
 
     private function addStaticRoute($methods, $path, $target)
     {
-        $this->static_routes[] = [
-            'method' => $methods,
-            'path' => $path,
-            'target' => $target
-        ];
+        foreach($methods as $method) {
+            $this->static_routes[] = [
+                'method' => $method,
+                'path' => $path,
+                'target' => $target
+            ];
+        }
     }
 
     private function parseRoute($route)
@@ -209,7 +211,7 @@ class Router
     public function getRequestAction($method, $uri) : Action\Action
     {
         foreach($this->static_routes as $route) {
-            if($route['method'][0] === $method && $route['path'] === $uri) {
+            if($route['method'] === $method && $route['path'] === $uri) {
                 return $this->convertRouteToAction($route);
             }
         }
@@ -239,9 +241,9 @@ class Router
             if(array_key_exists('target', $route)) {
                 if(is_callable($route['target'])) {
                     return new Action\CbFunction($route['target']);
-                } else {
-                    return new File($route['target']);
                 }
+
+                return new File($route['target']);
             }
 
             if (count($route) == 1) {
@@ -253,6 +255,13 @@ class Router
             return $route;
         } else if (is_callable($route)) {
             return new Action\CbFunction($route);
+        }
+    }
+
+    public function __printRoutes()
+    {
+        foreach($this->static_routes as $route) {
+            echo "{$route['method']}\t{$route['path']}\n";
         }
     }
 }

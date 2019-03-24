@@ -7,6 +7,7 @@ use Zaek\Framy\Request\Request;
 use Zaek\Framy\Request\InvalidRequest as InvalidRequest;
 use Zaek\Framy\Request\Web;
 use Zaek\Framy\Response as Response;
+use Zaek\Framy\Routing\NoRoute;
 use Zaek\Framy\Routing\Router;
 
 class Controller
@@ -128,17 +129,18 @@ class Controller
      */
     public function handle() : void
     {
-        $action = $this->getRouter()->getRequestAction(
-            $this->getRequest()->getMethod(),
-            $this->getRequest()->getUri()
-        );
+        try {
+            $action = $this->getRouter()->getRequestAction(
+                $this->getRequest()->getMethod(),
+                $this->getRequest()->getUri()
+            );
 
-        if($action) {
             $app = new Application($this);
             $execResult = $app->execute($action);
             $this->getResponse()->setOutput($execResult['output']);
             $this->getResponse()->setResult($execResult['result']);
-        } else {
+
+        } catch (NoRoute $exception) {
             $this->getResponse()->showError(404);
         }
     }
