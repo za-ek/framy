@@ -141,5 +141,6 @@ final class RouterTest extends TestCase
 
         $action = $router->getRequestAction('GET', '/response/2');
         $this->assertEquals(\Zaek\Framy\Response\Json::class, get_class($action->getResponse()));
+        $this->assertEquals("2", $action->getVar('id'));
     }
 }

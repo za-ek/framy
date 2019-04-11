@@ -271,6 +271,7 @@ class Router
                             $matches[$var][0],
                             $route['target']
                         );
+                        $route['vars'][$var] = $matches[$var][0];
                     }
 
                     return $this->convertRouteToAction($route);
@@ -307,6 +308,10 @@ class Router
                 $className = $this->getResponseClass($route['meta']['response']);
                 $action->setResponse(new $className);
             }
+        }
+
+        if(!empty($route['vars'])) {
+            $action->setVars('GET', $route['vars']);
         }
 
         return $action;

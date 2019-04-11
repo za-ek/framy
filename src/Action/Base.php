@@ -17,6 +17,13 @@ abstract class Base implements Action
      * @var Response
      */
     private $_response;
+    /**
+     * @var string[][]
+     */
+    private $vars = [
+        'GET' => [],
+        'POST' => [],
+    ];
 
     public function setMethod(string $method) : void
     {
@@ -44,5 +51,17 @@ abstract class Base implements Action
     public function setResponse(Response $response): void
     {
         $this->_response = $response;
+    }
+    public function setVars($type, $vars): void
+    {
+        $this->vars[$type] = array_merge($this->vars[$type], $vars);
+    }
+    public function getVar($var)
+    {
+        foreach($this->vars as $type => $vars) {
+            if(isset($vars[$var])) {
+                return $vars[$var];
+            }
+        }
     }
 }

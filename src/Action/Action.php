@@ -19,4 +19,6 @@ interface Action
     public function getUri() : string;
     public function setResponse(Response $response) : void;
     public function getResponse();
+    public function setVars($method, $vars) : void;
+    public function getVar($var);
 }
