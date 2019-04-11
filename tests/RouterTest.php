@@ -127,4 +127,15 @@ final class RouterTest extends TestCase
         $action = $router->getRequestAction('DELETE', '/users/32');
         $this->assertEquals('/users/Delete.php', $action->getPath());
     }
+    public function testResponse()
+    {
+        $router = new \Zaek\Framy\Routing\Router();
+        $router->addRoute('GET:html|POST:json|CLI /response', '/users/Update.php');
+
+        $action = $router->getRequestAction('POST', '/response');
+        $this->assertEquals(\Zaek\Framy\Response\Json::class, get_class($action->getResponse()));
+
+        $action = $router->getRequestAction('GET', '/response');
+        $this->assertEquals(\Zaek\Framy\Response\Web::class, get_class($action->getResponse()));
+    }
 }

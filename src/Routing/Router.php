@@ -4,6 +4,7 @@ namespace Zaek\Framy\Routing;
 use Zaek\Framy\Action;
 use Zaek\Framy\Action\File;
 use Zaek\Framy\Response\Json;
+use Zaek\Framy\Response\Web;
 
 /**
  * Class Router
@@ -27,6 +28,8 @@ class Router
         'CLI',
     ];
 
+    protected static $default_output = 'plain';
+
     /**
      * @var array
      */
@@ -46,6 +49,14 @@ class Router
         foreach ($array as $route => $match) {
             $this->addRoute($route, $match);
         }
+    }
+
+    public function getResponseClass ($code) {
+        return [
+            'plain' => Web::class,
+            'html' => Web::class,
+            'json' => Json::class,
+        ][$code] ?? Web::class;
     }
 
     /**
@@ -69,7 +80,16 @@ class Router
             if(in_array('REST', $matches['method'])) {
                 $this->addRestRoutes($matches, $target);
             } else {
-                $this->addStaticRoute($matches['method'], $matches['path'], $target);
+                foreach($matches['method'] as $method) {
+                    $this->addStaticRoute(
+                        $method,
+                        $matches['path'],
+                        $target,
+                        [
+                            'response' => $matches['meta']['response'][$method] ?? self::$default_output
+                        ]
+                    );
+                }
             }
         }
     }
@@ -84,11 +104,11 @@ class Router
             ['POST', '', 'Add'],
         ] as $item) {
             $this->addStaticRoute(
-                [$item[0]],
+                $item[0],
                 $path . $item[1],
                 $target . '/' . $item[2] . '.php',
                 [
-                    'response' => Json::class
+                    'response' => 'json'
                 ]
             );
         }
@@ -103,37 +123,46 @@ class Router
                 $item[0] . ' ' . $path . $item[1],
                 $target . '/' . $item[2] . '.php',
                 [
-                    'response' => Json::class
+                    'response' => 'json'
                 ]
             );
         }
     }
 
-    private function addStaticRoute($methods, $path, $target, $meta = [])
+    private function addStaticRoute($method, $path, $target, $meta = [])
     {
-        foreach($methods as $method) {
-            $this->static_routes[] = [
-                'method' => $method,
-                'path'   => $path,
-                'target' => $target,
-                'meta'   => $meta
-            ];
-        }
+        $this->static_routes[] = [
+            'method' => $method,
+            'path'   => $path,
+            'target' => $target,
+            'meta'   => $meta
+        ];
     }
 
     private function parseRoute($route)
     {
+        $meta = [];
+
         if(!strpos($route, ' ')) {
             $method = self::$available_methods;
         } else {
             $method = explode('|', substr($route, 0, strpos($route, ' ')));
+            foreach($method as $k => $v) {
+                $tmp = explode(':', $v);
+                $method[$k] = $tmp[0];
+
+                if(!empty($tmp[1])) {
+                    $meta['response'][$tmp[0]] = $tmp[1];
+                }
+            }
         }
 
         $path = substr($route, strpos($route, ' ') + 1);
 
         return [
             'method' => $method,
-            'path' => $path
+            'path' => $path,
+            'meta' => $meta
         ];
     }
 
@@ -268,7 +297,8 @@ class Router
 
         if(!empty($route['meta'])) {
             if(!empty($route['meta']['response'])) {
-                $action->setResponse(new $route['meta']['response']);
+                $className = $this->getResponseClass($route['meta']['response']);
+                $action->setResponse(new $className);
             }
         }
 

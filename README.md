@@ -31,13 +31,19 @@ You can overwrite default router calling the `setRouter` method
 Router syntax:
 ```php
 [
-  '(METHOD )URI' => TARGET
+  '[METHOD[:RESPONSE_TYPE] ]URI' => TARGET
 ] 
 ```
 ##### Method
 Method must be one of the following: 
 `GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|CLI`  
 Skip the method definition mean that URI is accessible by any of knowing methods
+
+##### Response type
+You could specify response type
+```
+html|json
+```
 
 ##### URI
 URI may be static...  
