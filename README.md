@@ -109,3 +109,8 @@ The `useDefault` option will add the route to such script.
 |URI|Method|Params|Return|
 |---|---|---|---|
 |/framy/signUp|POST|login<br />password<br />email|`{userId:(int)}`|
+
+## Tests
+```
+./vendor/bin/phpunit
+```
