@@ -7,6 +7,7 @@ use Zaek\Framy\Request\Request;
 use Zaek\Framy\Request\InvalidRequest as InvalidRequest;
 use Zaek\Framy\Request\Web;
 use Zaek\Framy\Response as Response;
+use Zaek\Framy\Routing\NoRoute;
 use Zaek\Framy\Routing\Router;
 
 class Controller
@@ -39,6 +40,10 @@ class Controller
      * @var User
      */
     private $user = null;
+    /**
+     * @var \Zaek\Framy\Action\Action|null
+     */
+    private $_action = null;
     /**
      * Controller constructor.
      * @param array $cfg
@@ -95,6 +100,14 @@ class Controller
     public function getResponse() : Response\Response
     {
         if(is_null($this->response)) {
+            if(!empty($this->_action)) {
+                if($this->_action->getResponse()) {
+                    $this->response = $this->_action->getResponse();
+                }
+            }
+        }
+
+        if(is_null($this->response)) {
             $this->response = (php_sapi_name() == 'cli') ? new Response\Cli() : new Response\Web();
         }
 
@@ -128,17 +141,21 @@ class Controller
      */
     public function handle() : void
     {
-        $action = $this->getRouter()->getRequestAction(
-            $this->getRequest()->getMethod(),
-            $this->getRequest()->getUri()
-        );
+        try {
+            $action = $this->getRouter()->getRequestAction(
+                $this->getRequest()->getMethod(),
+                $this->getRequest()->getUri()
+            );
+            $action->setMethod($this->getRequest()->getMethod());
+            $action->setUri($this->getRequest()->getUri());
+            $this->_action = $action;
 
-        if($action) {
             $app = new Application($this);
             $execResult = $app->execute($action);
             $this->getResponse()->setOutput($execResult['output']);
             $this->getResponse()->setResult($execResult['result']);
-        } else {
+
+        } catch (NoRoute $exception) {
             $this->getResponse()->showError(404);
         }
     }

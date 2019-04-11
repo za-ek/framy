@@ -1,6 +1,10 @@
 <?php
 namespace Zaek\Framy\Routing;
 
+use Zaek\Framy\Action;
+use Zaek\Framy\Action\File;
+use Zaek\Framy\Response\Json;
+
 /**
  * Class Router
  * @package Zaek\Routing
@@ -26,7 +30,7 @@ class Router
     /**
      * @var array
      */
-    private $static_routes = [];
+    public $static_routes = [];
     /**
      * @var array
      */
@@ -54,7 +58,7 @@ class Router
         $route = trim($route);
 
         if(strstr($route, '<')) {
-            $this->dynamic_routes[] = $this->prepareDynamicRoute($route, $target);
+            $this->addDynamicRoute($route, $target);
         } else {
             $matches = $this->parseRoute($route);
 
@@ -62,10 +66,57 @@ class Router
                 throw new InvalidRoute($route);
             }
 
+            if(in_array('REST', $matches['method'])) {
+                $this->addRestRoutes($matches, $target);
+            } else {
+                $this->addStaticRoute($matches['method'], $matches['path'], $target);
+            }
+        }
+    }
+
+    private function addRestRoutes($matches, $target)
+    {
+        $path = rtrim($matches['path'], '/');
+        $target = rtrim($target, '/');
+
+        foreach([
+            ['GET', '', 'List'],
+            ['POST', '', 'Add'],
+        ] as $item) {
+            $this->addStaticRoute(
+                [$item[0]],
+                $path . $item[1],
+                $target . '/' . $item[2] . '.php',
+                [
+                    'response' => Json::class
+                ]
+            );
+        }
+
+        foreach([
+            ['GET', '/<id:[\d]+>', 'Item'],
+            ['PATCH', '/<id:[\d]+>', 'Update'],
+            ['DELETE', '/<id:[\d]+>', 'Delete'],
+        ] as $item) {
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $this->addDynamicRoute(
+                $item[0] . ' ' . $path . $item[1],
+                $target . '/' . $item[2] . '.php',
+                [
+                    'response' => Json::class
+                ]
+            );
+        }
+    }
+
+    private function addStaticRoute($methods, $path, $target, $meta = [])
+    {
+        foreach($methods as $method) {
             $this->static_routes[] = [
-                'method' => $matches['method'],
-                'path' => $matches['path'],
-                'target' => $target
+                'method' => $method,
+                'path'   => $path,
+                'target' => $target,
+                'meta'   => $meta
             ];
         }
     }
@@ -92,7 +143,7 @@ class Router
      * @return array
      * @throws InvalidRoute
      */
-    private function prepareDynamicRoute($route, $target) : array
+    private function addDynamicRoute($route, $target, $meta = []) : void
     {
         $length = strlen($route);
         $inside = false;
@@ -152,24 +203,26 @@ class Router
 
         $method = strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route;
 
-        return [
+        $this->dynamic_routes[] = [
             'method' => strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route,
-            'path' => '#' . substr($route, strlen($method) + 1) . '#',
+            'path'   => '#' . substr($route, strlen($method) + 1) . '#',
             'target' => $target,
-            'vars' => $vars
+            'vars'   => $vars,
+            'meta'   => $meta
         ];
     }
 
     /**
      * @param $method
      * @param $uri
-     * @return mixed
+     * @return Action
+     * @throws NoRoute
      */
-    public function getRequestAction($method, $uri)
+    public function getRequestAction($method, $uri) : Action\Action
     {
         foreach($this->static_routes as $route) {
-            if($route['method'][0] === $method && $route['path'] === $uri) {
-                return $route;
+            if($route['method'] === $method && $route['path'] === $uri) {
+                return $this->convertRouteToAction($route);
             }
         }
 
@@ -184,11 +237,48 @@ class Router
                         );
                     }
 
-                    return $route;
+                    return $this->convertRouteToAction($route);
                 }
             }
         }
 
-        return null;
+        throw new NoRoute;
+    }
+
+    private function convertRouteToAction($route)
+    {
+        if (is_array($route)) {
+            if(array_key_exists('target', $route)) {
+                if(is_callable($route['target'])) {
+                    $action = new Action\CbFunction($route['target']);
+                } else {
+                    $action = new File($route['target']);
+                }
+            } else {
+                if (count($route) == 1) {
+                    $route = $route[0];
+                }
+                $action = new Action\CbFunction($route);
+            }
+        } else if (is_object($route) && $route instanceof Action) {
+            $action = $route;
+        } else if (is_callable($route)) {
+            $action = new Action\CbFunction($route);
+        }
+
+        if(!empty($route['meta'])) {
+            if(!empty($route['meta']['response'])) {
+                $action->setResponse(new $route['meta']['response']);
+            }
+        }
+
+        return $action;
+    }
+
+    public function __printRoutes()
+    {
+        foreach($this->static_routes as $route) {
+            echo "{$route['method']}\t{$route['path']}\n";
+        }
     }
 }

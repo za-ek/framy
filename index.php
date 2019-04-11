@@ -7,7 +7,8 @@ try {
         'routes' => [
             'GET /' => function () {
                 echo "Hello index!";
-            }
+            },
+            'REST /users' => '@' . __DIR__ . '/bin/REST'
         ],
         'tempDir' => sys_get_temp_dir() . '/z_framy',
         'dataDir' => __DIR__.'/db'

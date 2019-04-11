@@ -10,6 +10,8 @@ class Cli extends Response
 
     public function flush()
     {
+        echo $this->output;
+        /*
         if(!is_null($this->result)) {
             echo "Application result:\n";
             echo "--------------------\n";
@@ -31,5 +33,6 @@ class Cli extends Response
             }
             echo "\n--------------------\n";
         }
+        */
     }
 }
