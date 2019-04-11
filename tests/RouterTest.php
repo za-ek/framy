@@ -131,11 +131,15 @@ final class RouterTest extends TestCase
     {
         $router = new \Zaek\Framy\Routing\Router();
         $router->addRoute('GET:html|POST:json|CLI /response', '/users/Update.php');
+        $router->addRoute('GET:json /response/<id:\d+>', '/users/Update.php');
 
         $action = $router->getRequestAction('POST', '/response');
         $this->assertEquals(\Zaek\Framy\Response\Json::class, get_class($action->getResponse()));
 
         $action = $router->getRequestAction('GET', '/response');
-        $this->assertEquals(\Zaek\Framy\Response\Web::class, get_class($action->getResponse()));
+        $this->assertEquals(\Zaek\Framy\Response\Web::class, get_class($action->getResponse()));;
+
+        $action = $router->getRequestAction('GET', '/response/2');
+        $this->assertEquals(\Zaek\Framy\Response\Json::class, get_class($action->getResponse()));
     }
 }

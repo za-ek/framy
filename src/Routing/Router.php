@@ -231,10 +231,17 @@ class Router
         }
 
         $method = strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route;
+        $path = '#' . substr($route, strlen($method) + 1) . '#';
+
+        $tmp = explode(':', $method);
+        if (count($tmp) > 1) {
+            $meta['response'] = $tmp[1];
+            $method = $tmp[0];
+        }
 
         $this->dynamic_routes[] = [
-            'method' => strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route,
-            'path'   => '#' . substr($route, strlen($method) + 1) . '#',
+            'method' => explode(':', $method)[0],
+            'path'   => $path,
             'target' => $target,
             'vars'   => $vars,
             'meta'   => $meta
