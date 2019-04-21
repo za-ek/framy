@@ -32,9 +32,4 @@ class Cli extends Request
                 break;
         }
     }
-
-    public function files()
-    {
-        return [];
-    }
 }

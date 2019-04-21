@@ -27,12 +27,4 @@ class Web extends Request
 
         $this->_files = $_FILES;
     }
-
-    /**
-     * @return mixed
-     */
-    public function files()
-    {
-        return $_FILES;
-    }
 }
