@@ -3,6 +3,7 @@ namespace Zaek\Framy\Routing;
 
 use Zaek\Framy\Action;
 use Zaek\Framy\Action\File;
+use Zaek\Framy\Request\Request;
 use Zaek\Framy\Response\Json;
 use Zaek\Framy\Response\Web;
 
@@ -249,32 +250,36 @@ class Router
     }
 
     /**
-     * @param $method
-     * @param $uri
-     * @return Action
+     * @param Request $request
+     * @return Action\Action
      * @throws NoRoute
+     * @throws \Zaek\Framy\Request\InvalidRequest
      */
-    public function getRequestAction($method, $uri) : Action\Action
+    public function getRequestAction(Request $request) : Action\Action
     {
         foreach($this->static_routes as $route) {
-            if($route['method'] === $method && $route['path'] === $uri) {
-                return $this->convertRouteToAction($route);
+            if($route['method'] === $request->getMethod() && $route['path'] === $request->getUri()) {
+                $action = $this->convertRouteToAction($route);
+                $action->setRequest($request);
+                return $action;
             }
         }
 
         foreach($this->dynamic_routes as $route) {
-            if($route['method'] === $method) {
-                if(preg_match_all($route['path'], $uri, $matches)) {
+            if($route['method'] === $request->getMethod()) {
+                if(preg_match_all($route['path'], $request->getUri(), $matches)) {
                     foreach($route['vars'] as $var) {
                         $route['target'] = str_replace(
                             '$' . $var,
                             $matches[$var][0],
                             $route['target']
                         );
-                        $route['vars'][$var] = $matches[$var][0];
+                        $request->addGet($var, $matches[$var][0]);
                     }
 
-                    return $this->convertRouteToAction($route);
+                    $action = $this->convertRouteToAction($route);
+                    $action->setRequest($request);
+                    return $action;
                 }
             }
         }
@@ -308,10 +313,6 @@ class Router
                 $className = $this->getResponseClass($route['meta']['response']);
                 $action->setResponse(new $className);
             }
-        }
-
-        if(!empty($route['vars'])) {
-            $action->setVars('GET', $route['vars']);
         }
 
         return $action;

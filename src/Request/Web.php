@@ -3,55 +3,29 @@ namespace Zaek\Framy\Request;
 
 class Web extends Request
 {
-    /**
-     * @return mixed
-     * @throws InvalidRequest
-     */
-    public function getMethod()
+    public function __construct($method = null, $uri = null)
     {
-        if($_SERVER['REQUEST_METHOD'] == 'CLI') {
+        if(is_null($method)) {
+            $this->_method = $_SERVER['REQUEST_METHOD'] ?? '';
+        } else {
+            $this->_method = $method;
+        }
+
+        if($this->_method == 'CLI') {
             throw new InvalidRequest('Unsupported method');
         }
 
-        return $_SERVER['REQUEST_METHOD'];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUri()
-    {
-        return $_SERVER['REQUEST_URI'];
-    }
-
-    /**
-     * @param mixed ...$keys
-     * @return array|false
-     */
-    public function post(...$keys)
-    {
-        if (count($keys) > 0) {
-            if(is_array($keys[0])) {
-                return array_combine($keys[0], $_POST);
-            } else {
-                return array_combine($keys, $_POST);
+        if(is_null($uri)) {
+            $this->_uri = $_SERVER['REQUEST_URI'] ?? '';
+        } else {
+            $urlParsed = parse_url($uri ?? '');
+            parse_str($urlParsed['query'] ?? '', $this->_get);
+            if(!empty($urlParsed['path'])) {
+                $this->_uri = $urlParsed['path'];
             }
         }
 
-        return $_POST;
-    }
-
-    /**
-     * @param mixed ...$keys
-     * @return array|false
-     */
-    public function get(...$keys)
-    {
-        if (count($keys) > 0) {
-            return array_combine($keys, $_GET);
-        }
-
-        return $_GET;
+        $this->_files = $_FILES;
     }
 
     /**

@@ -1,25 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-class CustomRequest extends Zaek\Framy\Request\Web {
-    private $_method;
-    private $_uri;
-    public function __construct($_method, $_uri)
-    {
-        $this->_method = $_method;
-        $this->_uri = $_uri;
-    }
-
-    public function getMethod()
-    {
-        return $this->_method;
-    }
-    public function getUri()
-    {
-        return $this->_uri;
-    }
-}
-
 final class ControllerTest extends TestCase
 {
     public function testRoutes()
@@ -49,7 +30,7 @@ final class ControllerTest extends TestCase
         ]);
 
         // Web GET request
-        $controller->setRequest(new CustomRequest('GET', '/cb'));
+        $controller->setRequest(new \Zaek\Framy\Request\Web('GET', '/cb'));
         $controller->setResponse(new \Zaek\Framy\Response\Web());
         $this->expectOutputString('Hello world!');
         $controller->handle();

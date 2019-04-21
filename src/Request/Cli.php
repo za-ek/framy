@@ -3,24 +3,34 @@ namespace Zaek\Framy\Request;
 
 class Cli extends Request
 {
-    public function getMethod()
+    public function __construct($url = null)
     {
-        return 'CLI';
+        $urlParsed = parse_url($url ?? $_SERVER['argv'][1] ?? '');
+        parse_str($urlParsed['query'] ?? '', $this->_get);
+        if(!empty($urlParsed['path'])) {
+            $this->_uri = $urlParsed['path'];
+        }
+
+        $this->_method = 'CLI';
+
+        if($_SERVER['argc'] > 2) {
+            for($i = 2; $i < $_SERVER['argc']; $i++) {
+                $this->parseArgument($_SERVER['argv'][$i]);
+            }
+        }
     }
 
-    public function getUri()
+    protected function parseArgument($arg)
     {
-        return (!empty($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '');
-    }
-
-    public function post(...$keys)
-    {
-        return [];
-    }
-
-    public function get(...$keys)
-    {
-        return [];
+        $arg = explode('=', $arg);
+        switch ($arg[0]) {
+            case '--post':
+                parse_str($arg[1], $this->_post);
+                break;
+            case '--useMethod':
+                $this->_method = $arg[1];
+                break;
+        }
     }
 
     public function files()

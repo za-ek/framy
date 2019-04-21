@@ -1,67 +1,46 @@
 <?php
 namespace Zaek\Framy\Action;
 
+use Zaek\Framy\Request\Request;
 use Zaek\Framy\Response\Response;
 
 abstract class Base implements Action
 {
     /**
-     * @var string
-     */
-    private $_method;
-    /**
-     * @var string
-     */
-    private $_uri;
-    /**
      * @var Response
      */
     private $_response;
     /**
-     * @var string[][]
+     * @var Request
      */
-    private $vars = [
-        'GET' => [],
-        'POST' => [],
-    ];
+    private $_request;
 
-    public function setMethod(string $method) : void
+    /**
+     * @param Request $request
+     */
+    public function setRequest(Request $request) : void
     {
-        $this->_method = $method;
+        $this->_request = $request;
     }
 
-    public function setUri(string $uri) : void
+    public function getRequest() : Request
     {
-        $this->_uri = $uri;
+        return $this->_request;
     }
 
-    public function getMethod() : string
-    {
-        return $this->_method;
-    }
-
-    public function getUri() : string
-    {
-        return $this->_uri;
-    }
-    public function getResponse()
+    /**
+     * @return Response
+     */
+    public function getResponse() : Response
     {
         return $this->_response;
     }
+
+    /**
+     * @param Response $response
+     */
     public function setResponse(Response $response): void
     {
         $this->_response = $response;
-    }
-    public function setVars($type, $vars): void
-    {
-        $this->vars[$type] = array_merge($this->vars[$type], $vars);
-    }
-    public function getVar($var)
-    {
-        foreach($this->vars as $type => $vars) {
-            if(isset($vars[$var])) {
-                return $vars[$var];
-            }
-        }
     }
 }

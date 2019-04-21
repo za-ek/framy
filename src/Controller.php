@@ -142,12 +142,8 @@ class Controller
     public function handle() : void
     {
         try {
-            $action = $this->getRouter()->getRequestAction(
-                $this->getRequest()->getMethod(),
-                $this->getRequest()->getUri()
-            );
-            $action->setMethod($this->getRequest()->getMethod());
-            $action->setUri($this->getRequest()->getUri());
+            $action = $this->getRouter()->getRequestAction($this->getRequest());
+            $action->setRequest($this->getRequest());
             $this->_action = $action;
 
             $app = new Application($this);

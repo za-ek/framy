@@ -2,6 +2,7 @@
 namespace Zaek\Framy\Action;
 
 use Zaek\Framy\Application;
+use Zaek\Framy\Request\Request;
 use Zaek\Framy\Response\Response;
 
 interface Action
@@ -13,12 +14,15 @@ interface Action
      */
     public function execute(Application $app);
 
-    public function setMethod(string $method) : void;
-    public function setUri(string $uri) : void;
-    public function getMethod() : string;
-    public function getUri() : string;
+    /**
+     * @return Request
+     */
+    public function getRequest() : Request;
+    public function setRequest(Request $request) : void;
+
+    /**
+     * @return Response
+     */
+    public function getResponse() : Response;
     public function setResponse(Response $response) : void;
-    public function getResponse();
-    public function setVars($method, $vars) : void;
-    public function getVar($var);
 }
