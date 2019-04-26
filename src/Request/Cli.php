@@ -3,6 +3,8 @@ namespace Zaek\Framy\Request;
 
 class Cli extends Request
 {
+    protected $_arguments = [];
+
     public function __construct($url = null)
     {
         $urlParsed = parse_url($url ?? $_SERVER['argv'][1] ?? '');
@@ -31,5 +33,11 @@ class Cli extends Request
                 $this->_method = $arg[1];
                 break;
         }
+        $this->_arguments[substr($arg[0], 2)] = $arg[1];
+    }
+
+    public function getArgument($arg)
+    {
+        return $this->_arguments[$arg] ?? null;
     }
 }
