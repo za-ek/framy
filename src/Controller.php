@@ -143,7 +143,6 @@ class Controller
     {
         try {
             $action = $this->getRouter()->getRequestAction($this->getRequest());
-            $action->setRequest($this->getRequest());
             $this->_action = $action;
 
             $app = new Application($this);
