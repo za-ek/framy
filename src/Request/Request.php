@@ -1,7 +1,7 @@
 <?php
 namespace Zaek\Framy\Request;
 
-abstract class Request
+abstract class Request implements RequestInterface
 {
     /**
      * @var string
