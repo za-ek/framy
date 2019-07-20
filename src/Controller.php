@@ -76,11 +76,22 @@ class Controller
 
     /**
      * @return Request
+     * @throws InvalidRequest
      */
     public function getRequest() : Request
     {
         if(is_null($this->request)) {
-            $this->request = (php_sapi_name() == 'cli') ? new Cli() : new Web();
+            if(php_sapi_name() == 'cli') {
+                $this->request = new Cli();
+                if($this->request->getArgument('use-request')) {
+                    $this->request = new Web(
+                        $this->request->getArgument('use-request'),
+                        $this->request->getPath()
+                    );
+                }
+            } else {
+                $this->request = new Web();
+            }
         }
 
         return $this->request;

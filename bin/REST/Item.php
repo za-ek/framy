@@ -3,7 +3,7 @@
  * @var $this \Zaek\Framy\Application
  */
 
-$arr = explode('/', $this->getAction()->getUri());
+$arr = explode('/', $this->getAction()->getRequest()->getPath());
 $id = array_pop($arr);
 $tbl = array_pop($arr);
 try {
