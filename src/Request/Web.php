@@ -19,7 +19,10 @@ class Web extends Request
             $this->_uri = $_SERVER['REQUEST_URI'] ?? '';
         } else {
             $urlParsed = parse_url($uri ?? '');
-            parse_str($urlParsed['query'] ?? '', $this->_get);
+            parse_str($urlParsed['query'] ?? '', $queries);
+            foreach($queries as $query => $value) {
+                $this->addQuery($query, $value);
+            }
             if(!empty($urlParsed['path'])) {
                 $this->_uri = $urlParsed['path'];
             }

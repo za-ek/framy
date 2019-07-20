@@ -8,7 +8,10 @@ class Cli extends Request
     public function __construct($url = null)
     {
         $urlParsed = parse_url($url ?? $_SERVER['argv'][1] ?? '');
-        parse_str($urlParsed['query'] ?? '', $this->_get);
+        parse_str($urlParsed['query'] ?? '', $queries);
+        foreach($queries as $query => $value) {
+            $this->addQuery($query, $value);
+        }
         if(!empty($urlParsed['path'])) {
             $this->_uri = $urlParsed['path'];
         }

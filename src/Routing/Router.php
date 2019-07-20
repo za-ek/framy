@@ -258,7 +258,7 @@ class Router
     public function getRequestAction(Request $request) : Action\Action
     {
         foreach($this->static_routes as $route) {
-            if($route['method'] === $request->getMethod() && $route['path'] === $request->getUri()) {
+            if($route['method'] === $request->getMethod() && $route['path'] === $request->getPath()) {
                 $action = $this->convertRouteToAction($route);
                 $action->setRequest($request);
                 return $action;
@@ -267,14 +267,14 @@ class Router
 
         foreach($this->dynamic_routes as $route) {
             if($route['method'] === $request->getMethod()) {
-                if(preg_match_all($route['path'], $request->getUri(), $matches)) {
+                if(preg_match_all($route['path'], $request->getPath(), $matches)) {
                     foreach($route['vars'] as $var) {
                         $route['target'] = str_replace(
                             '$' . $var,
                             $matches[$var][0],
                             $route['target']
                         );
-                        $request->addGet($var, $matches[$var][0]);
+                        $request->addQuery($var, $matches[$var][0]);
                     }
 
                     $action = $this->convertRouteToAction($route);

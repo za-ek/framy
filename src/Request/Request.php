@@ -1,7 +1,7 @@
 <?php
 namespace Zaek\Framy\Request;
 
-abstract class Request implements RequestInterface
+abstract class Request implements RequestInterface, RequestBodyInterface
 {
     /**
      * @var string
@@ -11,22 +11,12 @@ abstract class Request implements RequestInterface
      * @var string
      */
     protected $_uri     = '';
-    /**
-     * @var array
-     */
-    protected $_post    = [];
-    /**
-     * @var array
-     */
-    protected $_get     = [];
-    /**
-     * @var array
-     */
-    protected $_files   = [];
+
+    protected $_body = [];
+    protected $_queries = [];
 
     /**
      * @return mixed
-     * @throws InvalidRequest
      */
     public function getMethod()
     {
@@ -34,62 +24,92 @@ abstract class Request implements RequestInterface
     }
 
     /**
-     * @return string
+     * @param mixed ...$keys
+     * @return array|mixed
      */
-    public function getUri()
+    public function getQueries (...$keys)
+    {
+        if (count($keys) > 0) {
+            return array_intersect_key($this->_queries, array_flip($keys));
+        }
+
+        return $this->_queries;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function addQuery($key, $value)
+    {
+        $this->_queries[$key] = $value;
+    }
+
+    /**
+     * @param $type
+     * @param $value
+     */
+    public function addBody($type, $value)
+    {
+        $this->_body[$type] = $value;
+    }
+
+    /**
+     * @param mixed ...$keys
+     * @return array|mixed
+     */
+    public function post(...$keys) {
+        if(empty($this->_body['post'])) {
+            throw new \OutOfRangeException('post is empty');
+        }
+
+        if(count($keys)) {
+            $result = array_intersect_key($this->_body['post'], array_flip($keys));
+            if(count($result) != count($keys)) {
+                throw new \OutOfRangeException('no such post keys');
+            }
+            return array_intersect_key($this->_body['post'], array_flip($keys));
+        }
+
+        return $this->_body['post'];
+    }
+
+    public function body()
+    {
+        return $this->_body;
+    }
+
+    public function getPath()
     {
         return $this->_uri;
     }
 
-    /**
-     * @param mixed ...$keys
-     * @return array|false
-     */
-    public function post(...$keys)
+    public function getScheme()
     {
-        if (count($keys) > 0) {
-            return array_combine($keys, $this->_post);
-        }
-
-        return $this->_post;
+        return null;
     }
 
-    /**
-     * @param mixed ...$keys
-     * @return array|false
-     */
-    public function get(...$keys)
+    public function getHost()
     {
-        if (count($keys) > 0) {
-            return array_intersect_key($this->_get, array_flip($keys));
-        }
-
-        return $this->_get;
+        return null;
     }
 
-    /**
-     * @param $key
-     * @param $value
-     */
-    public function addGet($key, $value)
+    public function getPort()
     {
-        $this->_get[$key] = $value;
+        return null;
     }
 
-    /**
-     * @param $key
-     * @param $value
-     */
-    public function addPost($key, $value)
+    public function getUser()
     {
-        $this->_post[$key] = $value;
+        return null;
     }
 
-    /**
-     * @return array
-     */
-    public function files()
+    public function getPass()
     {
-        return $this->_files;
+        return null;
+    }
+    public function getFragment()
+    {
+        return null;
     }
 }

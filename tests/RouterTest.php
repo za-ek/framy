@@ -156,9 +156,9 @@ final class RouterTest extends TestCase
 
         $request = new WebRequest('GET', '/response/2/5/');
         $action = $router->getRequestAction($request);
-        $this->assertEquals(['code' => '5'], $action->getRequest()->get('code'));
+        $this->assertEquals(['code' => '5'], $action->getRequest()->getQueries('code'));
         $action = $router->getRequestAction(new WebRequest('GET', '/response/2/'));
-        $this->assertEquals(['id' => '2'], $action->getRequest()->get('id'));
+        $this->assertEquals(['id' => '2'], $action->getRequest()->getQueries('id'));
     }
     public function testGet()
     {
@@ -168,10 +168,10 @@ final class RouterTest extends TestCase
         $router->addRoute('CLI /response/', '/users/Update.php');
 
         $action = $router->getRequestAction(new WebRequest('GET', '/response/?code=test'));
-        $this->assertEquals(['code' => 'test'], $action->getRequest()->get('code'));
+        $this->assertEquals(['code' => 'test'], $action->getRequest()->getQueries('code'));
         $action = $router->getRequestAction(new CliRequest('/response/?code=test'));
-        $this->assertEquals(['code' => 'test'], $action->getRequest()->get('code'));
+        $this->assertEquals(['code' => 'test'], $action->getRequest()->getQueries('code'));
         $action = $router->getRequestAction(new WebRequest('GET', '/response/testing1/?subCode=test'));
-        $this->assertEquals(['code' => 'testing1', 'subCode' => 'test'], $action->getRequest()->get('code', 'subCode'));
+        $this->assertEquals(['code' => 'testing1', 'subCode' => 'test'], $action->getRequest()->getQueries('code', 'subCode'));
     }
 }
