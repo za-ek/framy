@@ -1,3 +1,7 @@
+* Simulate HTTP-methods (like GET, PUT, etc.) in cli
+* Remove php-like arrays _get and _post, add real container _body
+* Add interfaces for request 
+
 ### 2.0.0-alpha &rarr; 2.0.0-alpha.1
 * Get console arguments in Request\Cli class 
 
