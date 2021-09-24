@@ -41,6 +41,6 @@ class Cli extends Request
 
     public function getArgument($arg)
     {
-        return $this->_arguments[$arg] ?? null;
+        return isset($this->_arguments[$arg]) ? $this->_arguments[$arg] : null;
     }
 }
