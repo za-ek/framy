@@ -36,7 +36,7 @@ class Cli extends Request
                 $this->_method = $arg[1];
                 break;
         }
-        $this->_arguments[substr($arg[0], 2)] = $arg[1];
+        $this->_arguments[substr($arg[0], 2)] = isset($arg[1]) ? $arg[1] : '';
     }
 
     public function getArgument($arg)
