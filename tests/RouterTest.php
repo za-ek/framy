@@ -11,7 +11,7 @@ use Zaek\Framy\Routing\Router;
 use Zaek\Framy\Routing\NoRoute;
 
 class testRouteClass__o {
-    public function testFunc() {
+    public static function testFunc() {
         return 'qwe';
     }
 }
@@ -173,5 +173,20 @@ final class RouterTest extends TestCase
         $this->assertEquals(['code' => 'test'], $action->getRequest()->getQueries('code'));
         $action = $router->getRequestAction(new WebRequest('GET', '/response/testing1/?subCode=test'));
         $this->assertEquals(['code' => 'testing1', 'subCode' => 'test'], $action->getRequest()->getQueries('code', 'subCode'));
+    }
+    public function testWildcardRouter()
+    {
+        $app = new \Zaek\Framy\Application(
+            new \Zaek\Framy\Controller()
+        );
+
+        // WEB .* => /index.php
+        $router = new Router();
+        $router->addRoute('GET /<path:.*>', function(\Zaek\Framy\Application $app) {
+            // Возвращает путь, в реальности исполняет его
+            return '/index.php';
+        });
+        $action = $router->getRequestAction(new WebRequest('GET', '/zaek/admin/'));
+        $this->assertEquals('/index.php', $action->execute($app));
     }
 }

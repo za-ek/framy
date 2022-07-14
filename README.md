@@ -68,7 +68,7 @@ Example:
 ##### Target
 Target can be a callback function, 
 an array contains function name, 
-an array with class name and method name,
+an array with class name and method name (method must be static for class names not object),
 or an object implements \Zaek\Framy\Action interface
  
 ##### Examples
