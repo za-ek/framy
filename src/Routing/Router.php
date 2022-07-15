@@ -13,32 +13,12 @@ use Zaek\Framy\Response\Web;
  */
 class Router
 {
-    /**
-     * List of available HTTP methods
-     * @var array
-     */
-    protected static $available_methods = [
-        'GET',
-        'HEAD',
-        'POST',
-        'PUT',
-        'DELETE',
-        'CONNECT',
-        'OPTIONS',
-        'TRACE',
-        'CLI',
-    ];
-
     protected static $default_output = 'plain';
 
     /**
-     * @var array
+     * @var Route[]
      */
-    public $static_routes = [];
-    /**
-     * @var array
-     */
-    private $dynamic_routes = [];
+    public $routes = [];
 
     /**
      * Router constructor.
@@ -47,12 +27,12 @@ class Router
      */
     public function __construct($array = [])
     {
-        foreach ($array as $route => $match) {
-            $this->addRoute($route, $match);
+        foreach ($array as $route => $target) {
+            $this->addRoute($route, $target);
         }
     }
 
-    public function getResponseClass ($code) {
+    public static function getResponseClass ($code) {
         return [
             'plain' => Web::class,
             'html' => Web::class,
@@ -67,10 +47,16 @@ class Router
      */
     public function addRoute(string $route, $target) : void
     {
+        if(is_array($target) && array_key_exists('target', $target)) {
+            $routeTarget = $target['target'];
+        } else {
+            $routeTarget = $target;
+        }
+
         $route = trim($route);
 
         if(strstr($route, '<')) {
-            $this->addDynamicRoute($route, $target);
+            $this->addDynamicRoute($route, $routeTarget, []);
         } else {
             $matches = $this->parseRoute($route);
 
@@ -79,13 +65,13 @@ class Router
             }
 
             if(in_array('REST', $matches['method'])) {
-                $this->addRestRoutes($matches, $target);
+                $this->addRestRoutes($matches, $routeTarget);
             } else {
                 foreach($matches['method'] as $method) {
                     $this->addStaticRoute(
                         $method,
                         $matches['path'],
-                        $target,
+                        $routeTarget,
                         [
                             'response' => $matches['meta']['response'][$method] ?? self::$default_output
                         ]
@@ -132,12 +118,12 @@ class Router
 
     private function addStaticRoute($method, $path, $target, $meta = [])
     {
-        $this->static_routes[] = [
+        $this->routes[] = new StaticRoute([
             'method' => $method,
             'path'   => $path,
             'target' => $target,
             'meta'   => $meta
-        ];
+        ]);
     }
 
     private function parseRoute($route)
@@ -145,7 +131,7 @@ class Router
         $meta = [];
 
         if(!strpos($route, ' ')) {
-            $method = self::$available_methods;
+            $method = Methods::list();
         } else {
             $method = explode('|', substr($route, 0, strpos($route, ' ')));
             foreach($method as $k => $v) {
@@ -173,7 +159,7 @@ class Router
      * @return array
      * @throws InvalidRoute
      */
-    private function addDynamicRoute($route, $target, $meta = []) : void
+    private function addDynamicRoute(string $route, $target, $meta = []) : void
     {
         $length = strlen($route);
         $inside = false;
@@ -240,88 +226,38 @@ class Router
             $method = $tmp[0];
         }
 
-        $this->dynamic_routes[] = [
+        $this->routes[] = new DynamicRoute([
             'method' => explode(':', $method)[0],
             'path'   => $path,
             'target' => $target,
             'vars'   => $vars,
-            'meta'   => $meta
-        ];
+            'meta'   => $meta,
+        ]);
     }
 
     /**
      * @param Request $request
      * @return Action\Action
      * @throws NoRoute
-     * @throws \Zaek\Framy\Request\InvalidRequest
      */
     public function getRequestAction(Request $request) : Action\Action
     {
-        foreach($this->static_routes as $route) {
-            if($route['method'] === $request->getMethod() && $route['path'] === $request->getPath()) {
-                $action = $this->convertRouteToAction($route);
-                $action->setRequest($request);
-                return $action;
-            }
-        }
-
-        foreach($this->dynamic_routes as $route) {
-            if($route['method'] === $request->getMethod()) {
-                if(preg_match_all($route['path'], $request->getPath(), $matches)) {
-                    foreach($route['vars'] as $var) {
-                        $route['target'] = str_replace(
-                            '$' . $var,
-                            $matches[$var][0],
-                            $route['target']
-                        );
-                        $request->addQuery($var, $matches[$var][0]);
-                    }
-
-                    $action = $this->convertRouteToAction($route);
-                    $action->setRequest($request);
-                    return $action;
-                }
+        usort($this->routes, function ($a, $b) {
+            return $a->sort <=> $b->sort;
+        });
+        foreach($this->routes as $route) {
+            if($route->matches($request)) {
+                return $route->getAction($request);
             }
         }
 
         throw new NoRoute;
     }
 
-    private function convertRouteToAction($route)
+    public function __printRoutes(): void
     {
-        if (is_array($route)) {
-            if(array_key_exists('target', $route)) {
-                if(is_callable($route['target'])) {
-                    $action = new Action\CbFunction($route['target']);
-                } else {
-                    $action = new File($route['target']);
-                }
-            } else {
-                if (count($route) == 1) {
-                    $route = $route[0];
-                }
-                $action = new Action\CbFunction($route);
-            }
-        } else if (is_object($route) && $route instanceof Action) {
-            $action = $route;
-        } else if (is_callable($route)) {
-            $action = new Action\CbFunction($route);
-        }
-
-        if(!empty($route['meta'])) {
-            if(!empty($route['meta']['response'])) {
-                $className = $this->getResponseClass($route['meta']['response']);
-                $action->setResponse(new $className);
-            }
-        }
-
-        return $action;
-    }
-
-    public function __printRoutes()
-    {
-        foreach($this->static_routes as $route) {
-            echo "{$route['method']}\t{$route['path']}\n";
+        foreach($this->routes as $route) {
+            echo $route . "\n";
         }
     }
 }

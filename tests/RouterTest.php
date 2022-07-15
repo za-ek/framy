@@ -182,11 +182,15 @@ final class RouterTest extends TestCase
 
         // WEB .* => /index.php
         $router = new Router();
-        $router->addRoute('GET /<path:.*>', function(\Zaek\Framy\Application $app) {
+        $router->addRoute('WEB /zaek/admin/zaek_admin', function() {return "static";});
+        $router->addRoute('WEB /<path:.*>', function(\Zaek\Framy\Application $app) {
             // Возвращает путь, в реальности исполняет его
             return '/index.php';
         });
         $action = $router->getRequestAction(new WebRequest('GET', '/zaek/admin/'));
         $this->assertEquals('/index.php', $action->execute($app));
+
+        $action = $router->getRequestAction(new WebRequest('GET', '/zaek/admin/zaek_admin'));
+        $this->assertEquals('static', $action->execute($app));
     }
 }
