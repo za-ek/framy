@@ -3,22 +3,18 @@ namespace Zaek\Framy\Request;
 
 class Web extends Request
 {
-    public function __construct($method = null, $uri = null)
+    public function __construct($method, $uri)
     {
-        if(is_null($method)) {
-            $this->_method = $_SERVER['REQUEST_METHOD'] ?? '';
-        } else {
-            $this->_method = $method;
-        }
+        $this->_method = $method;
 
         if($this->_method == 'CLI') {
             throw new InvalidRequest('Unsupported method');
         }
 
         if(is_null($uri)) {
-            $this->_uri = $_SERVER['REQUEST_URI'] ?? '';
+            throw new InvalidRequest('No URI provided');
         } else {
-            $urlParsed = parse_url($uri ?? '');
+            $urlParsed = parse_url($uri);
             parse_str($urlParsed['query'] ?? '', $queries);
             foreach($queries as $query => $value) {
                 $this->addQuery($query, $value);

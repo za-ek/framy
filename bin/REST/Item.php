@@ -3,11 +3,11 @@
  * @var $this \Zaek\Framy\Application
  */
 
-$arr = explode('/', $this->getAction()->getRequest()->getPath());
+$arr = explode('/', $this->request()->getPath());
 $id = array_pop($arr);
 $tbl = array_pop($arr);
 try {
-    $tbl = $this->getController()->db()->table($tbl);
+    $tbl = $this->db()->table($tbl);
     $tbl->open();
     $tbl->read();
     $list = $tbl->select(['_id' => intval($id)]);

@@ -4,9 +4,9 @@ namespace Zaek\Framy;
 class User
 {
     /**
-     * @var Controller
+     * @var Application
      */
-    private $controller;
+    private $application;
 
     private $id    = 0;
     private $login = '';
@@ -14,14 +14,14 @@ class User
 
     /**
      * User constructor.
-     * @param Controller $controller
+     * @param Application $application
      */
-    public function __construct(Controller $controller)
+    public function __construct(Application $application)
     {
-        $this->controller = $controller;
+        $this->controller = $application;
 
         try {
-            $useDefault = $controller->getConf('useDefault');
+            $useDefault = $application->conf('useDefault');
         } catch (InvalidConfiguration $e) {
             $useDefault = true;
         }

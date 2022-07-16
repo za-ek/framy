@@ -18,9 +18,8 @@ abstract class Response
 
     /**
      * @param $errorCode
-     * @return mixed
      */
-    public function showError($errorCode)
+    public function showError($errorCode) : void
     {
         $this->error = $errorCode;
     }
@@ -41,8 +40,21 @@ abstract class Response
         $this->result = $result;
     }
 
+    public function getResult()
+    {
+        return $this->result;
+    }
+    public function getOutput()
+    {
+        return $this->output;
+    }
     /**
      * @return mixed
      */
     abstract public function flush();
+
+    public function __toString(): string
+    {
+        return $this->output ?? '';
+    }
 }

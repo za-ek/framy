@@ -13,12 +13,12 @@ class CbFunction extends Base
     }
 
     /**
-     * @param Application $app
+     * @param Application $application
      * @return mixed
      * @throws NotFound
      */
-    public function execute(Application $app)
+    public function execute(Application $application)
     {
-        return call_user_func($this->_cb, $app);
+        return call_user_func($this->_cb, $application);
     }
 }

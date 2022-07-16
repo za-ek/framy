@@ -83,7 +83,7 @@ class Web extends Response
         599 => 'Network connect timeout error', // Unknown
     );
 
-    public function showError($errorCode)
+    public function showError($errorCode) : void
     {
         $this->error = $errorCode;
 

@@ -4,19 +4,20 @@ Simple php framework will be useful for creating provisional endpoints in fronte
 ## Start
 
 Create entrypoint for you scripts and define configuration as mentioned in the [next part](#config)
+
 ```php
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
 try {
-    $controller = new \Zaek\Framy\Controller([
+    $application = new \Zaek\Framy\Application([
         'homeDir' => __DIR__,
         'routes' => [
             'GET /' => '/web/Index.php',
         ]
     ]);
-    $controller->handle();
-    $controller->getResponse()->flush();
+    $application->handle();
+    $application->response()->flush();
 
 } catch (\Exception $e) {
     echo $e->getMessage();
@@ -25,8 +26,9 @@ try {
 
 ## Routing
 You can overwrite default router calling the `setRouter` method
+
 ```php
-\Zaek\Framy\Controller::setRouter(\Zaek\Framy\Router)
+\Zaek\Framy\Application::setRouter(\Zaek\Framy\Router)
 ```
 Router syntax:
 ```php
@@ -76,10 +78,11 @@ or an object implements \Zaek\Framy\Action interface
 [
   '/api/staticCall' => '/Web/Index.php',
   'GET:json|CLI /api/runCron' => '/Cli/Job.php',
-  '/api/users/<userId:[\d]+>' => '/Web/User.php', // access to $userId from Application::getAction()['vars']
-  '/api/functionCall' => function(Application $app) {},
+  '/api/users/<userId:[\d]+>' => '/Web/User.php', // access to $userId from Controller::getAction()['vars']
+  '/api/functionCall' => function(Controller $app) {},
   '/api/methodCall' => ['MyController', 'MethodAction'],
   '/api/anotherFunction' => ['FunctionName'],
+  '/api/actionCall' => new Zaek\Framy\Action\Action,
   '/api/absolutePathFileCall' => '@/var/www/index.html',
 ]
 ```

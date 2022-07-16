@@ -8,7 +8,7 @@ class File extends Base
     /**
      * @var string
      */
-    private $_path;
+    protected $_path;
 
     /**
      * File constructor.
@@ -20,27 +20,32 @@ class File extends Base
     }
 
     /**
-     * @param Application $app
+     * @param Application $application
      * @return mixed
      * @throws NotFound
      */
-    public function execute(Application $app)
+    public function execute(Application $application)
     {
-        if(substr($this->_path, 0, 1) === '@') {
-            $file = substr($this->_path, 1);
-        } else {
-            $file = $app->getController()->getRootDir() . $this->_path;
-        }
+        $abs = $this->getAbsolutePath($application);
 
-        if(file_exists($file)) {
-            return $app->runFile($file);
+        if(file_exists($abs)) {
+            return $application->runFile($abs);
         }
 
         throw new NotFound;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->_path;
+    }
+
+    public function getAbsolutePath(Application $application): string
+    {
+        if(substr($this->_path, 0, 1) === '@') {
+            return substr($this->_path, 1);
+        } else {
+            return $application->getRootDir() . $this->_path;
+        }
     }
 }

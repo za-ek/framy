@@ -5,7 +5,7 @@
 
 use Zaek\Framy\Response\Json;
 
-$this->getController()->setResponse(new Json());
+$this->setResponse(new Json());
 
 echo "Hello index!";
 

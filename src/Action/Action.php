@@ -8,11 +8,11 @@ use Zaek\Framy\Response\Response;
 interface Action
 {
     /**
-     * @param Application $app
+     * @param Application $application
      * @return mixed
      * @throws NotFound
      */
-    public function execute(Application $app);
+    public function execute(Application $application);
 
     /**
      * @return Request

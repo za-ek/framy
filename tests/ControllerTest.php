@@ -5,7 +5,7 @@ final class ControllerTest extends TestCase
 {
     public function testRoutes()
     {
-        $controller = new \Zaek\Framy\Controller([
+        $application = new \Zaek\Framy\Application([
             'routes' => [
                 'CLI /cb' => function ($app) {
                     echo 'Hello world!';
@@ -16,12 +16,12 @@ final class ControllerTest extends TestCase
         // Cli GET request
         $_SERVER['argv'][1] = '/cb';
         $this->expectOutputString('Hello world!');
-        $controller->handle();
-        $controller->getResponse()->flush();
+        $application->handle();
+        $application->response()->flush();
     }
     public function testWebGetRoute()
     {
-        $controller = new \Zaek\Framy\Controller([
+        $application = new \Zaek\Framy\Application([
             'routes' => [
                 'GET /cb' => function ($app) {
                     echo 'Hello world!';
@@ -30,10 +30,10 @@ final class ControllerTest extends TestCase
         ]);
 
         // Web GET request
-        $controller->setRequest(new \Zaek\Framy\Request\Web('GET', '/cb'));
-        $controller->setResponse(new \Zaek\Framy\Response\Web());
+        $application->setRequest(new \Zaek\Framy\Request\Web('GET', '/cb'));
+        $application->setResponse(new \Zaek\Framy\Response\Web());
         $this->expectOutputString('Hello world!');
-        $controller->handle();
-        $controller->getResponse()->flush();
+        $application->handle();
+        $application->response()->flush();
     }
 }
