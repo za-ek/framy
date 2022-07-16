@@ -45,7 +45,7 @@ class Router
      * @param mixed $target
      * @throws InvalidRoute
      */
-    public function addRoute(string $route, $target) : void
+    public function addRoute(string $route, $target) : static
     {
         if(is_array($target) && array_key_exists('target', $target)) {
             $routeTarget = $target['target'];
@@ -79,6 +79,8 @@ class Router
                 }
             }
         }
+
+        return $this;
     }
 
     private function addRestRoutes($matches, $target)
