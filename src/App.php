@@ -11,7 +11,7 @@ use Zaek\Framy\Response as Response;
 use Zaek\Framy\Routing\NoRoute;
 use Zaek\Framy\Routing\Router;
 
-class Application
+class App
 {
     /**
      * @var Router

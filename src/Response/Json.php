@@ -3,18 +3,16 @@ namespace Zaek\Framy\Response;
 
 class Json extends Web
 {
-    private $cfg;
     private $status_ok = true;
 
     public function __construct($cfg = [])
     {
-        $this->cfg = $cfg;
         if(!isset($cfg['useDefault']) || $cfg['useDefault']) {
             $this->status_ok = true;
         }
     }
 
-    public function showError($errorCode)
+    public function showError($errorCode) : void
     {
         $this->error = $errorCode;
 

@@ -1,18 +1,18 @@
 <?php
 namespace Zaek\Framy\Action;
 
-use Zaek\Framy\Application;
+use Zaek\Framy\App;
 use Zaek\Framy\Request\Request;
 use Zaek\Framy\Response\Response;
 
 interface Action
 {
     /**
-     * @param Application $application
+     * @param App $app
      * @return mixed
      * @throws NotFound
      */
-    public function execute(Application $application);
+    public function execute(App $app);
 
     /**
      * @return Request

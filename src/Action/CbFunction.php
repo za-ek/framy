@@ -1,7 +1,7 @@
 <?php
 namespace Zaek\Framy\Action;
 
-use Zaek\Framy\Application;
+use Zaek\Framy\App;
 
 class CbFunction extends Base
 {
@@ -13,12 +13,12 @@ class CbFunction extends Base
     }
 
     /**
-     * @param Application $application
+     * @param App $app
      * @return mixed
      * @throws NotFound
      */
-    public function execute(Application $application)
+    public function execute(App $app)
     {
-        return call_user_func($this->_cb, $application);
+        return call_user_func($this->_cb, $app);
     }
 }

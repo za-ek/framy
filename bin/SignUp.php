@@ -10,7 +10,7 @@
  * - - status = 'ok'
  * - - userId = (int)
  *
- * @var $this \Zaek\Framy\Application
+ * @var $this \Zaek\Framy\App
  */
 
 $this->setResponse(new \Zaek\Framy\Response\Json());

@@ -1,5 +1,5 @@
 ### 2.0.1 -> 3.0.0
-* Remove Controller class -> moving into Application
+* Remove Controller class -> moving into App
 * Static file 
 
 ### 2.0.0-alpha.1 &rarr; 2.0.1

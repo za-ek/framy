@@ -1,7 +1,7 @@
 <?php
 namespace Zaek\Framy\Action;
 
-use Zaek\Framy\Application;
+use Zaek\Framy\App;
 
 class File extends Base
 {
@@ -20,16 +20,16 @@ class File extends Base
     }
 
     /**
-     * @param Application $application
+     * @param App $app
      * @return mixed
      * @throws NotFound
      */
-    public function execute(Application $application)
+    public function execute(App $app)
     {
-        $abs = $this->getAbsolutePath($application);
+        $abs = $this->getAbsolutePath($app);
 
         if(file_exists($abs)) {
-            return $application->runFile($abs);
+            return $app->runFile($abs);
         }
 
         throw new NotFound;
@@ -40,12 +40,12 @@ class File extends Base
         return $this->_path;
     }
 
-    public function getAbsolutePath(Application $application): string
+    public function getAbsolutePath(App $app): string
     {
         if(substr($this->_path, 0, 1) === '@') {
             return substr($this->_path, 1);
         } else {
-            return $application->getRootDir() . $this->_path;
+            return $app->getRootDir() . $this->_path;
         }
     }
 }

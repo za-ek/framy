@@ -2,13 +2,13 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
-    $application = new \Zaek\Framy\Application([
+    $app = new \Zaek\Framy\App([
         'homeDir' => __DIR__,
         'dataDir' => __DIR__ . '/../db',
         'routes' => include '.router.php'
     ]);
-    $application->handle();
-    $application->response()->flush();
+    $app->handle();
+    $app->response()->flush();
 
 } catch (\Zaek\Framy\Routing\InvalidRoute $e) {
     echo $e->getMessage() . '<br/>';

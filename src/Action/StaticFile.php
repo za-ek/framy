@@ -1,21 +1,21 @@
 <?php
 namespace Zaek\Framy\Action;
 
-use Zaek\Framy\Application;
+use Zaek\Framy\App;
 use Zaek\Framy\Request\InvalidRequest;
 
 class StaticFile extends Base
 {
     /**
-     * @param Application $application
+     * @param App $app
      * @return mixed
      * @throws NotFound
      * @throws InvalidRequest
      */
-    public function execute(Application $application) : void
+    public function execute(App $app) : void
     {
-        $abs = $application->getRootDir() .
-            $application->request()->getPath();
+        $abs = $app->getRootDir() .
+            $app->request()->getPath();
 
         if(file_exists($abs)) {
             readfile($abs);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Zaek\Framy\Action\StaticFile;
-use Zaek\Framy\Application;
+use Zaek\Framy\App;
 use Zaek\Framy\Request\Web as WebRequest;
 use Zaek\Framy\Request\Cli as CliRequest;
 use Zaek\Framy\Response\Web as WebResponse;
@@ -58,13 +58,13 @@ final class RouterTest extends TestCase
 
     public function testRouterCallbackAction()
     {
-        $application = new \Zaek\Framy\Application();
+        $app = new \Zaek\Framy\App();
         // function () {}
-        $application->router()->addRoute('GET /cb', function () {
+        $app->router()->addRoute('GET /cb', function () {
             return 'qwerty';
         });
-        $application->setRequest(new WebRequest('GET', '/cb'));
-        $this->assertEquals('qwerty', $application->handle()->response()->getResult());
+        $app->setRequest(new WebRequest('GET', '/cb'));
+        $this->assertEquals('qwerty', $app->handle()->response()->getResult());
 
         // function_name
         function testRunReturnAsdfgh()
@@ -72,24 +72,24 @@ final class RouterTest extends TestCase
             return 'asdfgh';
         }
 
-        $application->router()->addRoute('GET /fn', 'testRunReturnAsdfgh');
-        $application->setRequest(new WebRequest('GET', '/fn'));
-        $this->assertEquals('asdfgh', $application->handle()->response()->getResult());
+        $app->router()->addRoute('GET /fn', 'testRunReturnAsdfgh');
+        $app->setRequest(new WebRequest('GET', '/fn'));
+        $this->assertEquals('asdfgh', $app->handle()->response()->getResult());
 
         // ['class', 'method']
-        $application->router()->addRoute('GET /cm', ['testRouteClass__o', 'testFunc']);
-        $application->setRequest(new WebRequest('GET', '/cm'));
-        $this->assertEquals('qwe', $application->handle()->response()->getResult());
+        $app->router()->addRoute('GET /cm', ['testRouteClass__o', 'testFunc']);
+        $app->setRequest(new WebRequest('GET', '/cm'));
+        $this->assertEquals('qwe', $app->handle()->response()->getResult());
     }
 
     public function testRouterAbsPath()
     {
-        $application = new \Zaek\Framy\Application();
+        $app = new \Zaek\Framy\App();
         $file = tempnam(sys_get_temp_dir(), 'test');
         file_put_contents($file, '<?php return "asd";?>');
-        $application->router()->addRoute('GET /', '@' . $file);
-        $application->setRequest(new WebRequest('GET', '/'));
-        $this->assertEquals('asd', $application->handle()->response()->getResult());
+        $app->router()->addRoute('GET /', '@' . $file);
+        $app->setRequest(new WebRequest('GET', '/'));
+        $this->assertEquals('asd', $app->handle()->response()->getResult());
         unlink($file);
     }
 
@@ -183,38 +183,38 @@ final class RouterTest extends TestCase
 
     public function testWildcardRouter()
     {
-        $application = new Application();
+        $app = new App();
 
         // WEB .* => /index.php
-        $application->router()->addRoute('WEB /zaek/admin/zaek_admin', function () {
+        $app->router()->addRoute('WEB /zaek/admin/zaek_admin', function () {
             return "static";
         });
-        $application->router()->addRoute('WEB /<path:.*>', function (Application $application) {
+        $app->router()->addRoute('WEB /<path:.*>', function (App $app) {
             // Возвращает путь, в реальности исполняет его
             return '/index.php';
         });
-        $application->setRequest(new WebRequest('GET', '/zaek/admin/'));
-        $this->assertEquals('/index.php', $application->handle()->response()->getResult());
+        $app->setRequest(new WebRequest('GET', '/zaek/admin/'));
+        $this->assertEquals('/index.php', $app->handle()->response()->getResult());
 
-        $application->setRequest(new WebRequest('GET', '/zaek/admin/zaek_admin'));
-        $this->assertEquals('static', $application->handle()->response()->getResult());
+        $app->setRequest(new WebRequest('GET', '/zaek/admin/zaek_admin'));
+        $this->assertEquals('static', $app->handle()->response()->getResult());
     }
 
     public function testStaticFile()
     {
-        $application = new Application(['homeDir' => sys_get_temp_dir()]);
+        $app = new App(['homeDir' => sys_get_temp_dir()]);
 
-        $static_path = tempnam($application->getRootDir(), 'zt');
-        $relative_path = substr($static_path, strlen($application->getRootDir()));
+        $static_path = tempnam($app->getRootDir(), 'zt');
+        $relative_path = substr($static_path, strlen($app->getRootDir()));
         $this->assertFileExists($static_path);
 
         $content = bin2hex(random_bytes(10));
         file_put_contents($static_path, $content);
 
         // WEB .* => /index.php
-        $application->router()->addRoute('GET ' . $relative_path, new StaticFile());
-        $application->setRequest(new WebRequest('GET', $relative_path));
-        $this->assertEquals($content, $application->handle()->response()->getOutput());
+        $app->router()->addRoute('GET ' . $relative_path, new StaticFile());
+        $app->setRequest(new WebRequest('GET', $relative_path));
+        $this->assertEquals($content, $app->handle()->response()->getOutput());
 
         unlink($static_path);
     }

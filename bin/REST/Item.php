@@ -1,6 +1,6 @@
 <?php
 /**
- * @var $this \Zaek\Framy\Application
+ * @var $this \Zaek\Framy\App
  */
 
 $arr = explode('/', $this->request()->getPath());

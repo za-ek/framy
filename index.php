@@ -2,7 +2,7 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 try {
-    $application = new \Zaek\Framy\Application([
+    $app = new \Zaek\Framy\App([
         'homeDir' => __DIR__,
         'routes' => [
             'GET /' => function () {
@@ -13,8 +13,8 @@ try {
         'tempDir' => sys_get_temp_dir() . '/z_framy',
         'dataDir' => __DIR__.'/db'
     ]);
-    $application->handle();
-    $application->response()->flush();
+    $app->handle();
+    $app->response()->flush();
 
 } catch (\Zaek\Framy\Routing\InvalidRoute $e) {
     echo $e->getMessage() . '<br/>';

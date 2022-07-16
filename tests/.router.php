@@ -1,18 +1,21 @@
 <?php
-function test() {
+
+use Zaek\Framy\App;
+
+function test() : void {
     echo "Test\n";
 }
-class testA {
-    public function methodB() {
+$class = new class {
+    public function methodB() : void {
         echo "Method B\n";
     }
-}
+};
 
 return [
-    'CLI /cb' => function(\Zaek\Framy\Application $app) {
+    'CLI /cb' => function(App $app) {
         echo "Callable\n";
     },
     'CLI /file' => '/Cli/Index.php',
     'CLI /f' => ['test'],
-    'CLI /m' => ['testA', 'methodB'],
+    'CLI /m' => [$class, 'methodB'],
 ];

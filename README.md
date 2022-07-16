@@ -10,14 +10,14 @@ Create entrypoint for you scripts and define configuration as mentioned in the [
 require_once __DIR__ . '/vendor/autoload.php';
 
 try {
-    $application = new \Zaek\Framy\Application([
+    $app = new \Zaek\Framy\App([
         'homeDir' => __DIR__,
         'routes' => [
             'GET /' => '/web/Index.php',
         ]
     ]);
-    $application->handle();
-    $application->response()->flush();
+    $app->handle();
+    $app->response()->flush();
 
 } catch (\Exception $e) {
     echo $e->getMessage();
@@ -28,7 +28,7 @@ try {
 You can overwrite default router calling the `setRouter` method
 
 ```php
-\Zaek\Framy\Application::setRouter(\Zaek\Framy\Router)
+\Zaek\Framy\App::setRouter(\Zaek\Framy\Router)
 ```
 Router syntax:
 ```php
