@@ -155,7 +155,7 @@ class App
             $action = $this->router()->getRequestAction($this->request());
             $this->_action = $action;
 
-            ob_start(null, null, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
+            ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE | PHP_OUTPUT_HANDLER_REMOVABLE);
 
             try {
                 $result = $action->execute($this);
