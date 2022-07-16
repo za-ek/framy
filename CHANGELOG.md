@@ -1,3 +1,6 @@
+### 2.0.0-alpha.1 &rarr; 2.0.1
+* WEB requests
+* Wildcard route
 * Simulate HTTP-methods (like GET, PUT, etc.) in cli
 * Remove php-like arrays _get and _post, add real container _body
 * Add interfaces for request 
