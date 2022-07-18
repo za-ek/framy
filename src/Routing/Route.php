@@ -2,14 +2,14 @@
 namespace Zaek\Framy\Routing;
 
 use Zaek\Framy\Action\Action;
-use Zaek\Framy\Action\CbFunction;
 use Zaek\Framy\Action\File;
+use Zaek\Framy\Action\Json;
 use Zaek\Framy\Request\Request;
 
 abstract class Route
 {
-    protected $_config;
-    public $sort;
+    protected array $_config;
+    public int $sort;
     public function __construct($config, $sort = 0)
     {
         $this->_config = $config;
@@ -23,25 +23,39 @@ abstract class Route
 
     abstract public function getAction($request) : Action;
 
-    protected function convertToAction()
+    /**
+     * convertToAction формирует Action на основе текущего Route
+     * метод может быть вызван до непосредственного исполнения
+     *
+     * Если target не наследует Action - он будет выполнен в момент
+     *  вызова данного метода, результат выполнения - Action, будет возвращён
+     *
+     * Если target может быть вызван - он будет вызван непосредственно
+     * Если target массив - он будет возвращён как Action\Json
+     * Если target Action - он будет возвращён
+     * Если target строка - она будет использована как путь для создания Action\File
+     *
+     * @return Action
+     * @throws \Exception
+     */
+    protected function convertToAction() : Action
     {
         $target = $this->_config['target'];
 
         if (is_array($target)) {
-            if(is_callable($this->_config['target'])) {
-                $action = new CbFunction($this->_config['target']);
+            if(is_callable($target)) {
+                $action = call_user_func($target, $this);
             } else {
-                $action = new File($this->_config['target']);
+                $action = new Json($target);
             }
-        } else if (is_object($target) && $target instanceof Action) {
+        } else if ($target instanceof Action) {
             $action = $target;
         } else if (is_callable($target)) {
-            $action = new CbFunction($target);
+            $action = call_user_func($target);
         } else if (is_string($target)) {
             $action = new File($target);
         } else {
-            var_dump($target);
-            die();
+            throw new \Exception('Can not create Action for current route');
         }
 
         if(!empty($this->_config['meta'])) {

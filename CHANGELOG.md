@@ -1,6 +1,11 @@
 ### 2.0.1 -> 3.0.0
 * Remove Controller class -> moving into App
-* Static file 
+* Static file
+* addRoutes method
+* Router prepares Action for further call. See Router::convertToAction
+* Json action returns JSON array
+* confDefined method for checking if key exists
+* Add void action
 
 ### 2.0.0-alpha.1 &rarr; 2.0.1
 * WEB requests

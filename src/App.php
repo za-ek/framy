@@ -221,6 +221,11 @@ class App
         return $this->cfg[$key];
     }
 
+    public function confDefined($key) : bool
+    {
+        return array_key_exists($key, $this->cfg);
+    }
+
     public function runFile($file)
     {
         return include $file;
