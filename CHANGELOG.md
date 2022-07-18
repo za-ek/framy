@@ -1,3 +1,4 @@
+* set conf value (e.g. in route)
 * get arguments list for CLI request
 
 ### 2.0.1 -> 3.0.2

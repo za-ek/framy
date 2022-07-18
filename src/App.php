@@ -221,6 +221,13 @@ class App
         return $this->cfg[$key];
     }
 
+    public function setConf($k, $v) : static
+    {
+        $this->cfg[$k] = $v;
+
+        return $this;
+    }
+
     public function confDefined($key) : bool
     {
         return array_key_exists($key, $this->cfg);
