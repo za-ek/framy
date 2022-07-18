@@ -1,4 +1,6 @@
-### 2.0.1 -> 3.0.0
+* get arguments list for CLI request
+
+### 2.0.1 -> 3.0.2
 * Remove Controller class -> moving into App
 * Static file
 * addRoutes method

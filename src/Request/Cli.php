@@ -30,7 +30,7 @@ class Cli extends Request
         $arg = explode('=', $arg);
         switch ($arg[0]) {
             case '--post':
-                parse_str($arg[1], $this->_post);
+                parse_str($arg[1], $_POST);
                 break;
             case '--useMethod':
                 $this->_method = $arg[1];
@@ -42,5 +42,9 @@ class Cli extends Request
     public function getArgument($arg)
     {
         return isset($this->_arguments[$arg]) ? $this->_arguments[$arg] : null;
+    }
+    public function getArguments()
+    {
+        return $this->_arguments;
     }
 }
