@@ -3,18 +3,22 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+use Zaek\Framy\Action\CbFunction;
 use Zaek\Framy\Action\StaticFile;
 use Zaek\Framy\App;
 use Zaek\Framy\Request\Web as WebRequest;
 use Zaek\Framy\Request\Cli as CliRequest;
 use Zaek\Framy\Response\Web as WebResponse;
 use Zaek\Framy\Response\Json as JsonResponse;
+use Zaek\Framy\Routing\Route;
 use Zaek\Framy\Routing\Router;
 use Zaek\Framy\Routing\NoRoute;
 
 class testRouteClass__o {
     public static function testFunc() {
-        return 'qwe';
+        return new CbFunction(function () {
+            return 'qwe';
+        });
     }
 }
 
@@ -60,16 +64,16 @@ final class RouterTest extends TestCase
     {
         $app = new \Zaek\Framy\App();
         // function () {}
-        $app->router()->addRoute('GET /cb', function () {
+        $app->router()->addRoute('GET /cb', new CbFunction(function () {
             return 'qwerty';
-        });
+        }));
         $app->setRequest(new WebRequest('GET', '/cb'));
         $this->assertEquals('qwerty', $app->handle()->response()->getResult());
 
         // function_name
         function testRunReturnAsdfgh()
         {
-            return 'asdfgh';
+            return new CbFunction(function() {return 'asdfgh';});
         }
 
         $app->router()->addRoute('GET /fn', 'testRunReturnAsdfgh');
@@ -183,16 +187,14 @@ final class RouterTest extends TestCase
 
     public function testWildcardRouter()
     {
-        $app = new App();
+        $app = new App(['homeDir' => '/']);
 
         // WEB .* => /index.php
-        $app->router()->addRoute('WEB /zaek/admin/zaek_admin', function () {
-            return "static";
-        });
-        $app->router()->addRoute('WEB /<path:.*>', function (App $app) {
+        $app->router()->addRoute('WEB /zaek/admin/zaek_admin', new CbFunction(function () {return "static";}));
+        $app->router()->addRoute('WEB /<path:.*>', new CbFunction(function (App $app) {
             // Возвращает путь, в реальности исполняет его
             return '/index.php';
-        });
+        }));
         $app->setRequest(new WebRequest('GET', '/zaek/admin/'));
         $this->assertEquals('/index.php', $app->handle()->response()->getResult());
 

@@ -18,7 +18,7 @@ class User
      */
     public function __construct(App $app)
     {
-        $this->controller = $app;
+        $this->app = $app;
 
         try {
             $useDefault = $app->conf('useDefault');
@@ -64,7 +64,7 @@ class User
         $end = rand(6,10);
         $salt = substr(hash('sha1', time()), $start, $end);
 
-        return $this->controller->db()->table('users')->insert([
+        return $this->app->db()->table('users')->insert([
             'login' => $data['login'],
             'email' => $data['email'],
             'salt' => $salt,

@@ -1,8 +1,8 @@
 <?php
 namespace Zaek\Framy\Routing;
 
+use JetBrains\PhpStorm\ArrayShape;
 use Zaek\Framy\Action;
-use Zaek\Framy\Action\File;
 use Zaek\Framy\Request\Request;
 use Zaek\Framy\Response\Json;
 use Zaek\Framy\Response\Web;
@@ -13,26 +13,27 @@ use Zaek\Framy\Response\Web;
  */
 class Router
 {
-    protected static $default_output = 'plain';
+    protected static string $default_output = 'plain';
 
     /**
      * @var Route[]
      */
-    public $routes = [];
+    public array $routes = [];
 
     /**
      * Router constructor.
      * @param array $array
      * @throws InvalidRoute
      */
-    public function __construct($array = [])
+    public function __construct(array $array = [])
     {
         foreach ($array as $route => $target) {
             $this->addRoute($route, $target);
         }
     }
 
-    public static function getResponseClass ($code) {
+    public static function getResponseClass ($code) : string
+    {
         return [
             'plain' => Web::class,
             'html' => Web::class,
@@ -45,7 +46,7 @@ class Router
      * @param mixed $target
      * @throws InvalidRoute
      */
-    public function addRoute(string $route, $target) : static
+    public function addRoute(string $route, mixed $target) : static
     {
         if(is_array($target) && array_key_exists('target', $target)) {
             $routeTarget = $target['target'];
@@ -55,7 +56,7 @@ class Router
 
         $route = trim($route);
 
-        if(strstr($route, '<')) {
+        if(str_contains($route, '<')) {
             $this->addDynamicRoute($route, $routeTarget, []);
         } else {
             $matches = $this->parseRoute($route);
@@ -83,7 +84,19 @@ class Router
         return $this;
     }
 
-    private function addRestRoutes($matches, $target)
+    /**
+     * @throws InvalidRoute
+     */
+    public function addRoutes($routes): static
+    {
+        foreach ($routes as $k => $route) {
+            $this->addRoute($k, $route);
+        }
+
+        return $this;
+    }
+
+    private function addRestRoutes($matches, $target): static
     {
         $path = rtrim($matches['path'], '/');
         $target = rtrim($target, '/');
@@ -116,9 +129,11 @@ class Router
                 ]
             );
         }
+
+        return $this;
     }
 
-    private function addStaticRoute($method, $path, $target, $meta = [])
+    private function addStaticRoute($method, $path, $target, $meta = []) : void
     {
         $this->routes[] = new StaticRoute([
             'method' => $method,
@@ -128,7 +143,8 @@ class Router
         ]);
     }
 
-    private function parseRoute($route)
+    #[ArrayShape(['method' => "array|string[]", 'path' => "string", 'meta' => "array"])]
+    private function parseRoute($route) : array
     {
         $meta = [];
 
@@ -158,7 +174,6 @@ class Router
     /**
      * @param string $route
      * @param $target
-     * @return array
      * @throws InvalidRoute
      */
     private function addDynamicRoute(string $route, $target, $meta = []) : void

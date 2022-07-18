@@ -7,8 +7,10 @@ final class ControllerTest extends TestCase
     {
         $app = new \Zaek\Framy\App([
             'routes' => [
-                'CLI /cb' => function ($app) {
-                    echo 'Hello world!';
+                'CLI /cb' => function ($route) {
+                    return new \Zaek\Framy\Action\CbFunction(function($app) {
+                        echo 'Hello world!';
+                    });
                 },
             ]
         ]);
@@ -23,8 +25,10 @@ final class ControllerTest extends TestCase
     {
         $app = new \Zaek\Framy\App([
             'routes' => [
-                'GET /cb' => function ($app) {
-                    echo 'Hello world!';
+                'GET /cb' => function ($route) {
+                    return new \Zaek\Framy\Action\CbFunction(function($app) {
+                        echo 'Hello world!';
+                    });
                 },
             ]
         ]);

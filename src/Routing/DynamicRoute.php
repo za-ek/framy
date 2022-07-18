@@ -21,7 +21,7 @@ class DynamicRoute extends Route {
         preg_match_all($this->_config['path'], $request->getPath(), $matches);
 
         foreach($this->_config['vars'] as $var) {
-            if(!is_callable($this->_config['target'])) {
+            if(!is_callable($this->_config['target']) && !is_object($this->_config['target'])) {
                 $this->_config['target'] = str_replace(
                     '$' . $var,
                     $matches[$var][0],
