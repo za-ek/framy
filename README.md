@@ -87,6 +87,39 @@ or an object implements \Zaek\Framy\Action interface
 ]
 ```
 
+## Prefix
+For grouping URIs by prefix you can use class RoutePrefix:
+```php
+new Router(new RoutePrefix('/api', [
+    '/users' => '/users.php',
+    '/settings' => '/v.php'
+]));
+
+// Is the same as
+
+new Router([
+    '/api/users' => '/users.php',
+    '/api/settings' => '/settings.php'
+]);
+```
+RoutePrefix handles as array, so you can group prefixes inside other prefix and combine RoutePrefix with standard route:
+```php
+new Router([
+    ...new RoutePrefix('/api', [
+        '/settings' => '/settings.php',
+        ...new RoutePrefix('/users', [
+            'GET /' => '/users_list.php',
+            ...new RoutePrefix('/auth', [
+                'POST /login' => '/login.php',
+                'POST /logout' => '/logout.php',
+            ])
+        ])
+    ])),
+    ...new RoutePrefix('/catalog', ['/' => '/catalog.php']),
+    '/' => '/index.php'
+]);
+```
+
 ## Config
 |Name|Type|Default Value|Description|
 |---|---|---|---|
