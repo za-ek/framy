@@ -1,3 +1,5 @@
+* add RoutePrefix class for group URIs
+* fix multiple methods in dynamic routes
 * set conf value (e.g. in route)
 * get arguments list for CLI request
 

@@ -2,6 +2,7 @@
 namespace Zaek\Framy\Routing;
 
 use JetBrains\PhpStorm\ArrayShape;
+use SeekableIterator;
 use Zaek\Framy\Action;
 use Zaek\Framy\Request\Request;
 use Zaek\Framy\Response\Json;
@@ -25,7 +26,7 @@ class Router
      * @param array $array
      * @throws InvalidRoute
      */
-    public function __construct(array $array = [])
+    public function __construct(SeekableIterator|array $array = [])
     {
         foreach ($array as $route => $target) {
             $this->addRoute($route, $target);
@@ -234,22 +235,25 @@ class Router
             }
         }
 
-        $method = strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : $route;
-        $path = '#' . substr($route, strlen($method) + 1) . '#';
+        $method = strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : 'WEB';
+        $route = strpos($route, ' ') ? substr($route, strpos($route, ' ') + 1) : $route;
+        foreach(explode("|", $method) as $m) {
+            $path = '#' . $route . '#';
 
-        $tmp = explode(':', $method);
-        if (count($tmp) > 1) {
-            $meta['response'] = $tmp[1];
-            $method = $tmp[0];
+            $tmp = explode(':', $m);
+            if (count($tmp) > 1) {
+                $meta['response'] = $tmp[1];
+                $m = $tmp[0];
+            }
+
+            $this->routes[] = new DynamicRoute([
+                'method' => $m,
+                'path' => $path,
+                'target' => $target,
+                'vars' => $vars,
+                'meta' => $meta,
+            ]);
         }
-
-        $this->routes[] = new DynamicRoute([
-            'method' => explode(':', $method)[0],
-            'path'   => $path,
-            'target' => $target,
-            'vars'   => $vars,
-            'meta'   => $meta,
-        ]);
     }
 
     /**

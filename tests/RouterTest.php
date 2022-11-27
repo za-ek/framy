@@ -10,7 +10,7 @@ use Zaek\Framy\Request\Web as WebRequest;
 use Zaek\Framy\Request\Cli as CliRequest;
 use Zaek\Framy\Response\Web as WebResponse;
 use Zaek\Framy\Response\Json as JsonResponse;
-use Zaek\Framy\Routing\Route;
+use Zaek\Framy\Routing\RoutePrefix;
 use Zaek\Framy\Routing\Router;
 use Zaek\Framy\Routing\NoRoute;
 
@@ -219,5 +219,47 @@ final class RouterTest extends TestCase
         $this->assertEquals($content, $app->handle()->response()->getOutput());
 
         unlink($static_path);
+    }
+
+    public function testWebDeleteMethod()
+    {
+        $router = new Router();
+        $router->addRoute('DELETE|WEB /response/<all:.*>', '/users/Update.php');
+
+        $action = $router->getRequestAction(new WebRequest('DELETE', '/response/hey'));
+        $this->assertEquals('/users/Update.php', $action->getPath());
+    }
+
+    public function testPrefix()
+    {
+        $router = new Router([
+            ...new RoutePrefix('/api', [
+                'POST /login' => '/api/login.php',
+                'POST /registration' => '/api/registration.php',
+                new RoutePrefix('/catalog', [
+                    new RoutePrefix('/goods', [
+                        'GET|POST|DELETE|OPTIONS /<id:[\d]+>' => '/api/catalog/good.php',
+                        'GET /' => '/api/catalog/goods.php',
+                    ]),
+                    new RoutePrefix('/settings', [
+                        'GET /' => '/api/catalog/settings.php'
+                    ])
+                ])
+            ]),
+            '/' => '//',
+        ]);
+        $router->addRoute('GET /catalog', '/api/index.php', 'api');
+//
+        $action = $router->getRequestAction(new WebRequest('DELETE', '/api/catalog/goods/12'));
+        $this->assertEquals('/api/catalog/good.php', $action->getPath());
+
+        $this->expectException(NoRoute::class);
+        $router->getRequestAction(new WebRequest('POST', '/api/catalog/settings/'));
+
+        $action = $router->getRequestAction(new WebRequest('GET', '/api/catalog/settings/'));
+        $this->assertEquals('/api/catalog/settings.php', $action->getPath());
+
+        $action = $router->getRequestAction(new WebRequest('GET', '/'));
+        $this->assertEquals('//', $action->getPath());
     }
 }
