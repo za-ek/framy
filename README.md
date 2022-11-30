@@ -120,6 +120,25 @@ new Router([
 ]);
 ```
 
+Example for versioning:
+```php
+$routes = new RoutePrefix('/users', ['GET /' => '/users.php']);
+
+$v1 = new RoutePrefix('/v1', ['GET /version' => '/v1.php', ...$routes]);
+$v2 = new RoutePrefix('/v2', ['GET /version' => '/v2.php', ...$routes]);
+$v3 = new RoutePrefix('/v3', ['GET /version' => '/v3.php', ...$routes, ...['GET /users/' => '/users_change.php']]);
+
+$router = new Router(new RoutePrefix('/api', [
+    ...$v1,
+    ...$v2,
+    ...$v3,
+]));
+
+// /api/v1/users => /users.php
+// /api/v2/users => /users.php
+// /api/v3/users => /users_changed.php
+```
+
 ## Config
 |Name|Type|Default Value|Description|
 |---|---|---|---|
