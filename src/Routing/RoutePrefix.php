@@ -37,22 +37,22 @@ class RoutePrefix implements \SeekableIterator, \Countable {
         }
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->routes[$this->position][1];
     }
 
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
 
-    public function key()
+    public function key(): mixed
     {
         return $this->routes[$this->position][0];
     }
 
-    public function valid()
+    public function valid() : bool
     {
         $pos = $this->position;
         return isset($this->routes[$this->position]) || count(array_filter($this->routes, function($val) use($pos) {
@@ -60,12 +60,12 @@ class RoutePrefix implements \SeekableIterator, \Countable {
         })) > 0;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
 
-    public function seek(int $offset)
+    public function seek(int $offset): void
     {
         if(!isset($this->routes[$offset])) {
             throw new OutOfBoundsException("invalid seek position({$offset})");
@@ -73,7 +73,7 @@ class RoutePrefix implements \SeekableIterator, \Countable {
         $this->position = $offset;
     }
 
-    public function count()
+    public function count(): int
     {
         return $this->count;
     }
