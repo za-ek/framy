@@ -86,6 +86,19 @@ or an object implements \Zaek\Framy\Action interface
   '/api/absolutePathFileCall' => '@/var/www/index.html',
 ]
 ```
+### REST
+REST route creates following links:
+```
+new Router(['REST /projects' => '/api/projects/']);
+
+[
+    'GET:json /projects' => '/api/projects/List.php',
+    'POST:json /projects' => '/api/projects/Add.php',
+    'GET:json /projects/<id:[\d]+>' => '/api/projects/Item.php',
+    'PATCH:json /projects/<id:[\d]+>' => '/api/projects/Update.php',
+    'DELETE:json /projects/<id:[\d]+>' => '/api/projects/Delete.php',    
+]
+```
 
 ## Prefix
 For grouping URIs by prefix you can use class RoutePrefix:
