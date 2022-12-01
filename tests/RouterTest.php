@@ -139,6 +139,9 @@ final class RouterTest extends TestCase
 
         $action = $router->getRequestAction(new WebRequest('DELETE', '/users/32'));
         $this->assertEquals('/users/Delete.php', $action->getPath());
+
+        $action = $router->getRequestAction(new WebRequest('GET', '/users/32'));
+        $this->assertEquals(32, $action->getRequest()->getQuery('id'));
     }
 
     public function testResponse()

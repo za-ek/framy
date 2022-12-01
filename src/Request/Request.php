@@ -36,6 +36,15 @@ abstract class Request implements RequestInterface, RequestBodyInterface
         return $this->_queries;
     }
 
+    public function getQuery($key)
+    {
+        if(array_key_exists($key, $this->_queries)) {
+            return $this->_queries[$key];
+        }
+
+        return null;
+    }
+
     /**
      * @param $key
      * @param $value
