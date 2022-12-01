@@ -300,4 +300,15 @@ final class RouterTest extends TestCase
             }
         }
     }
+
+    public function testDynamicRest()
+    {
+        $router = new Router([
+            'REST /users/' => '/users.php',
+            'REST /users/<user_id:[\d]+>/friends' => '/friends',
+        ]);
+
+        $action = $router->getRequestAction(new WebRequest('GET', '/users/1/friends'));
+        $this->assertEquals('/friends/List.php', $action->getPath());
+    }
 }

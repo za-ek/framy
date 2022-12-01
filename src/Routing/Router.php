@@ -106,14 +106,18 @@ class Router
             ['GET', '', 'List'],
             ['POST', '', 'Add'],
         ] as $item) {
-            $this->addStaticRoute(
-                $item[0],
-                $path . $item[1],
-                $target . '/' . $item[2] . '.php',
-                [
-                    'response' => 'json'
-                ]
-            );
+            if(str_contains($matches['path'], '<')) {
+                $this->addDynamicRoute($path . $item[1], $target . '/' . $item[2] . '.php');
+            } else {
+                $this->addStaticRoute(
+                    $item[0],
+                    $path . $item[1],
+                    $target . '/' . $item[2] . '.php',
+                    [
+                        'response' => 'json'
+                    ]
+                );
+            }
         }
 
         foreach([
@@ -177,8 +181,9 @@ class Router
      * @param $target
      * @throws InvalidRoute
      */
-    private function addDynamicRoute(string $route, $target, $meta = []) : void
+    private function addDynamicRoute(string $routeOrigin, $target, $meta = []) : void
     {
+        $route = $routeOrigin;
         $length = strlen($route);
         $inside = false;
         for($i = $length - 1; $i > 0; $i--) {
@@ -238,7 +243,7 @@ class Router
         $method = strpos($route, ' ') ? substr($route, 0, strpos($route, ' ')) : 'WEB';
         $route = strpos($route, ' ') ? substr($route, strpos($route, ' ') + 1) : $route;
         foreach(explode("|", $method) as $m) {
-            $path = '#' . $route . '#';
+            $path = '#^' . $route . '$#';
 
             $tmp = explode(':', $m);
             if (count($tmp) > 1) {
@@ -246,13 +251,23 @@ class Router
                 $m = $tmp[0];
             }
 
-            $this->routes[] = new DynamicRoute([
-                'method' => $m,
-                'path' => $path,
-                'target' => $target,
-                'vars' => $vars,
-                'meta' => $meta,
-            ]);
+            if($m === 'REST') {
+                $route = explode(' ', $routeOrigin);
+                $route = $route[count($route) - 1];
+                $this->addRestRoutes([
+                    'method' => [$m],
+                    'path' => $route,
+                    'meta' => $meta
+                ], $target);
+            } else {
+                $this->routes[] = new DynamicRoute([
+                    'method' => $m,
+                    'path' => $path,
+                    'target' => $target,
+                    'vars' => $vars,
+                    'meta' => $meta,
+                ]);
+            }
         }
     }
 
@@ -264,6 +279,7 @@ class Router
     public function getRequestAction(Request $request) : Action\Action
     {
         usort($this->routes, function ($a, $b) {
+            if($a->sort === $b->sort) return strlen($a) <=> strlen($b);
             return $a->sort <=> $b->sort;
         });
         foreach($this->routes as $route) {
