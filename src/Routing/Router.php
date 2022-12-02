@@ -107,7 +107,7 @@ class Router
             ['POST', '', 'Add'],
         ] as $item) {
             if(str_contains($matches['path'], '<')) {
-                $this->addDynamicRoute($path . $item[1], $target . '/' . $item[2] . '.php');
+                $this->addDynamicRoute($item[0] . ' ' . $path . $item[1], $target . '/' . $item[2] . '.php');
             } else {
                 $this->addStaticRoute(
                     $item[0],
