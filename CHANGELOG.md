@@ -1,3 +1,4 @@
+### 3.0.2 -> 3.1.0
 * add RoutePrefix class for group URIs
 * fix multiple methods in dynamic routes
 * set conf value (e.g. in route)
