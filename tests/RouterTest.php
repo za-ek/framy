@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Zaek\Framy\Action\CbFunction;
+use Zaek\Framy\Action\File;
 use Zaek\Framy\Action\StaticFile;
 use Zaek\Framy\App;
 use Zaek\Framy\Request\Web as WebRequest;
 use Zaek\Framy\Request\Cli as CliRequest;
 use Zaek\Framy\Response\Web as WebResponse;
 use Zaek\Framy\Response\Json as JsonResponse;
+use Zaek\Framy\Routing\Route;
 use Zaek\Framy\Routing\RoutePrefix;
+use Zaek\Framy\Routing\RouteGroup;
+use Zaek\Framy\Routing\RouteProxy;
 use Zaek\Framy\Routing\Router;
 use Zaek\Framy\Routing\NoRoute;
 
@@ -310,5 +314,64 @@ final class RouterTest extends TestCase
 
         $action = $router->getRequestAction(new WebRequest('GET', '/users/1/friends'));
         $this->assertEquals('/friends/List.php', $action->getPath());
+    }
+    public function testRouteProxy()
+    {
+        define('RANDOM_STRI', rand(0, 9999999));
+
+        $proxyFunction = function($route) {
+            return new CbFunction(function(App $app) use($route) {
+                if($app->user()->getId() < 1) {
+                    throw new Exception('No auth ' . RANDOM_STRI, 401);
+                }
+
+                return new File($route);
+            });
+        };
+
+        $app = new App(['useDefault' => false, 'routes' => [
+            'GET /' => new CbFunction(function() {echo "OK";}),
+            ...new RouteProxy($proxyFunction,new RoutePrefix('/users', [
+                'GET /' => '/users.php',
+                'GET /<user_id:[\d]+>/friends' => '/friends',
+            ])),
+            ...new RoutePrefix('/data', new RouteProxy($proxyFunction, [
+                'GET /catalog' => '/catalog'
+            ]))
+        ]]);
+
+        $app->setRequest(new WebRequest('GET', '/users/1/friends'));
+        try {
+            $app->handle();
+            $this->assertTrue(false);
+        } catch (\Exception $e) {
+            if($e->getMessage() === 'No auth ' . RANDOM_STRI)
+                $this->assertTrue(true);
+            else
+                $this->assertTrue(false);
+            ob_get_contents();
+            ob_end_clean();
+        }
+
+
+        $app->setRequest(new WebRequest('GET', '/data/catalog'));
+        try {
+            $app->handle();
+            $this->assertTrue(false);
+        } catch (\Exception $e) {
+            if($e->getMessage() === 'No auth ' . RANDOM_STRI)
+                $this->assertTrue(true);
+            else
+                $this->assertTrue(false);
+            ob_get_contents();
+            ob_end_clean();
+        }
+
+        $app->setRequest(new WebRequest('GET', '/data/noroute'));
+        $app->handle();
+
+        $app->setRequest(new WebRequest('GET', '/'));
+        $app->handle();
+        $this->assertEquals('OK', $app->response()->getOutput());
     }
 }

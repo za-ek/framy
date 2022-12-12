@@ -94,11 +94,12 @@ new Router(['REST /projects' => '/api/projects/']);
 [
     'GET:json /projects' => '/api/projects/List.php',
     'POST:json /projects' => '/api/projects/Add.php',
-    'GET:json /projects/<id:[\d]+>' => '/api/projects/Item.php',
-    'PATCH:json /projects/<id:[\d]+>' => '/api/projects/Update.php',
-    'DELETE:json /projects/<id:[\d]+>' => '/api/projects/Delete.php',    
+    'GET:json /projects/<project_id:[\d]+>' => '/api/projects/Item.php',
+    'PATCH:json /projects/<project_id:[\d]+>' => '/api/projects/Update.php',
+    'DELETE:json /projects/<project_id:[\d]+>' => '/api/projects/Delete.php',    
 ]
 ```
+Route key uses as route key e.g. for /projects is project_id, for /users is user_id etc.
 
 ## Prefix
 For grouping URIs by prefix you can use class RoutePrefix:
@@ -150,6 +151,34 @@ $router = new Router(new RoutePrefix('/api', [
 // /api/v1/users => /users.php
 // /api/v2/users => /users.php
 // /api/v3/users => /users_changed.php
+```
+
+## Proxy
+Proxying all responses in group with a callback:
+```php
+$proxyCallback = function($route) {
+    return new CbFunction(function(App $app) use($route) {
+        if($app->user()->getId() < 1) {
+            throw new Exception('No auth', 401);
+        }
+
+        return new File($route);
+    });
+};
+
+/// The request /api/user/data and /api/personal/data will be proxy by proxyCallback
+///     and will throw an exception for non-authorized users
+
+new Router(new RoutePrefix('/api', [
+    '/data' => '/data.php',
+    // It could be the proxy inside a group as a group inside the proxy 
+    ... new RoutePrefix('/user', new RouteProxy($proxyCallback, [
+        'GET /data' => '/user_data.php',
+    ])),
+    ... new RouteProxy($proxyCallback, new RoutePrefix('/personal', [
+        'GET /data' => '/user_personal.php',
+    ]))
+]))
 ```
 
 ## Config

@@ -1,3 +1,10 @@
+### 3.1.0 -> 3.2.0
+* Create superclass RouteGroup
+* Create RouteProxy
+* RoutePrefix is a subclass of RouteGroup
+* Routes REST is obsolete
+* Minimal PHP version is 8.1
+
 ### 3.0.2 -> 3.1.0
 * add RoutePrefix class for group URIs
 * fix multiple methods in dynamic routes
