@@ -78,7 +78,7 @@ or an object implements \Zaek\Framy\Action interface
 [
   '/api/staticCall' => '/Web/Index.php',
   'GET:json|CLI /api/runCron' => '/Cli/Job.php',
-  '/api/users/<userId:[\d]+>' => '/Web/User.php', // access to $userId from Controller::getAction()['vars']
+  '/api/users/<userId:[\d]+>' => '/Web/User.php', // access to $userId from $this->request()->getQuery('userId')
   '/api/functionCall' => function(Controller $app) : Action {},
   '/api/methodCall' => ['MyController', 'MethodAction'], // Вызывается непосредственно для получения Action
   '/api/anotherFunction' => ['FunctionName'], // Вызывается непосредственно для получения Action
